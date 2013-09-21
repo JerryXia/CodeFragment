@@ -1,0 +1,26 @@
+﻿</html>
+<html>
+<head>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
+<title>运行一个javascript代码段</title>
+<script type="text/javascript">
+function runEx(cod1){
+    cod=document.getElementById(cod1);
+    var code=cod.value;
+    if (code!=""){
+        var newwin=window.open('','','');  //打开一个窗口并赋给变量newwin。
+        newwin.opener = null // 防止代码对论谈页面修改
+        newwin.document.write(code);  //向这个打开的窗口中写入代码code，这样就实现了运行代码功能。
+        newwin.document.close();
+    }
+}
+function runjs(){
+    runEx("txtdemo");
+}
+</script>
+</head>
+<body>
+    <textarea id="txtdemo" rows="15" cols="100"></textarea>
+    <input type="button" value="runjs" onclick="runjs()"/>
+</body>
+</html>
