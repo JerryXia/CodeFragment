@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+	<meta charset="utf-8">
+	<title>最新获取SkyDrive音乐外链mp3地址</title>
+	<meta name="author" content="jerry">
+	<meta name="keywords" content="最新获取SkyDrive音乐外链mp3地址">
+	<meta name="description" content="最新获取SkyDrive音乐外链mp3地址">
+	<script type="text/javascript">
+	//点击转码获取链接方法
+	String.prototype.Trim=function(){return this.replace(/(^\s*)|(\s*$)/g,"");}
+	function gid(id){
+		return document.getElementById(id);
+	}
+	function convert2link(oldvalue){
+		return "http://storage.live.com/items/"+oldvalue+"?a.mp3";
+	}
+	function getLink(){
+		//获取原链接
+		var skydrive_old = gid("skydrive_old");
+		//非空验证
+		if(skydrive_old.value.length == 0){
+			alert("链接不能为空");
+			skydrive_old.focus();
+			return false;
+		}
+		//提取原链接中关键代码
+		var song_list = new Array();
+		for(var i=0;i<skydrive_old.value.split(";").length;i++)
+		{
+			song_list[i] = skydrive_old.value.split(";")[i].Trim();
+		}
+		//skydrive_old = skydrive_old.value.split("=")[1];
+		//拼接最终结果
+		for(var j=0;j<skydrive_old.value.split(";").length;j++)
+		{
+			if(j==0)
+			{
+				gid("skydrive_new").value = gid("skydrive_new").value + convert2link(song_list[j].split("-")[1].split("=")[1]);
+			}
+			else
+			{
+				gid("skydrive_new").value = gid("skydrive_new").value + "," + convert2link(song_list[j].split("-")[1].split("=")[1]);
+			}
+		}
+		gid("skydrive_new").value = gid("skydrive_new").value + "|titles=";
+		for(var j=0;j<skydrive_old.value.split(";").length;j++)
+		{
+			if(j==0)
+			{
+				gid("skydrive_new").value = gid("skydrive_new").value + song_list[j].split("-")[0];
+			}
+			else
+			{
+				gid("skydrive_new").value = gid("skydrive_new").value + "," + song_list[j].split("-")[0];
+			}
+		}
+		gid("skydrive_new").value = gid("skydrive_new").value + "|artists=";
+		for(var j=0;j<skydrive_old.value.split(";").length;j++)
+		{
+			if(j==0)
+			{
+				gid("skydrive_new").value = gid("skydrive_new").value + gid("txt_artist").value.Trim();
+			}
+			else
+			{
+				gid("skydrive_new").value = gid("skydrive_new").value + "," + gid("txt_artist").value.Trim();
+			}
+		}
+		gid("skydrive_new").value = gid("skydrive_new").value + "|loop=yes";
+		//document.getElementById("skydrive_new").value = "http://storage.live.com/items/"+skydrive_old+"?a.mp3";
+	}
+	</script>
+</head>
+<body>
+<form>
+	<p>链接：<textarea id="skydrive_old" cols="120" rows="20"></textarea></p>
+	<p>结果：<textarea id="skydrive_new" cols="8000" rows="5"></textarea></p>
+	<p>歌手：<input type="text" id="txt_artist" value=""/></p>
+	<p><input type="button" id="btn" value="转码" onclick="getLink()"><input type="reset" value="清空" onclick="this.form.reset();"></p>
+</form>
+</body>
+</html>
