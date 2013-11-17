@@ -1,6 +1,8 @@
-﻿# CodeFragment
+﻿## CodeFragment
 
 Recode some my favourite code
+
+Some Basic Command
 
 git add README.md
 
