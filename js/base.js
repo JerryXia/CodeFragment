@@ -1,3 +1,9 @@
+/*!
+* GLOBAL namespace
+* Date: 2013-09-28
+*
+*
+*/
 var GLOBAL = {};
 GLOBAL.namespace = function(str){
     var arr = str.split("."),o = GLOBAL;
