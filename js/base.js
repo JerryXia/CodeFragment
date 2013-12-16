@@ -124,7 +124,7 @@ if(typeof String.prototype.endsWith=='undefined'){
 if(typeof Array.prototype.indexOf=='undefined'){
     Array.prototype.indexOf=function(item,strict){//strict：是否严格相等（===）
         var index=-1;
-        var strict=strict=='undefined'? true || strict;
+        var strict=strict=='undefined'? true : strict;
         var length=this.length;
         if(strict){
             for(var i=0;i<length;i++){
