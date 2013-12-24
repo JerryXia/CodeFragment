@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+<pre>
+<code>
+//Firefox detector 2/3 by DoctorDan
+FF=/a/[-1]=='a'
+//Firefox 3 by me:-
+FF3=(function x(){})[-5]=='x'
+//Firefox 2 by me:-
+FF2=(function x(){})[-6]=='x'
+//IE detector I posted previously
+IE='\v'=='v'
+//Safari detector by me
+Saf=/a/.__proto__=='//'
+//Chrome by me
+Chr=/source/.test((/a/.toString+''))
+//Opera by me
+Op=/^function \(/.test([].sort)
+//IE6 detector using conditionals 
+try {IE6=@cc_on @_jscript_version <= 5.7&&@_jscript_build<10000} catch(e){IE6=false;}
+</code>
+min.js
+<pre><code>
+B=(function x(){})[-5]=='x'?'FF3':(function x(){})[-6]=='x'?'FF2':/a/[-1]=='a'?'FF':'\v'=='v'?'IE':/a/.__proto__=='//'?'Saf':/s/.test(/a/.toString)?'Chr':/^function \(/.test([].sort)?'Op':'Unknown'
+</code></pre>
+</pre>
+<script type="text/javascript">
+B=(function x(){})[-5]=='x'?'FF3':(function x(){})[-6]=='x'?'FF2':/a/[-1]=='a'?'FF':'\v'=='v'?'IE':/a/.__proto__=='//'?'Saf':/s/.test(/a/.toString)?'Chr':/^function \(/.test([].sort)?'Op':'Unknown'
+    console.log(B);
+</script>
+</body>
+</html>
