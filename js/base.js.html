@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>base.js</title>
+<link rel="stylesheet" type="text/css" href="highlight.css">
+</head>
+<body class="hl">
+<pre class="hl"><span class="hl com">/*!</span>
+<span class="hl com">* GLOBAL namespace</span>
+<span class="hl com">* Date: 2013-09-28</span>
+<span class="hl com">* 全局命名空间 生成公共变量</span>
+<span class="hl com">*</span>
+<span class="hl com">*/</span>
+<span class="hl kwa">var</span> GLOBAL <span class="hl opt">= {};</span>
+GLOBAL<span class="hl opt">.</span><span class="hl kwa">namespace</span> <span class="hl opt">=</span> <span class="hl kwa">function</span><span class="hl opt">(</span>str<span class="hl opt">){</span>
+    <span class="hl kwa">var</span> arr <span class="hl opt">=</span> str<span class="hl opt">.</span><span class="hl kwd">split</span><span class="hl opt">(</span><span class="hl str">&quot;.&quot;</span><span class="hl opt">),</span>o <span class="hl opt">=</span> GLOBAL<span class="hl opt">;</span>
+    <span class="hl kwa">for</span> <span class="hl opt">(</span>i<span class="hl opt">=(</span>arr<span class="hl opt">[</span><span class="hl num">0</span><span class="hl opt">] ==</span> <span class="hl str">&quot;GLOBAL&quot;</span><span class="hl opt">) ?</span> <span class="hl num">1</span> <span class="hl opt">:</span> <span class="hl num">0</span><span class="hl opt">;</span> i<span class="hl opt">&lt;</span>arr<span class="hl opt">.</span>length<span class="hl opt">;</span> i<span class="hl opt">++) {</span>
+        o<span class="hl opt">[</span>arr<span class="hl opt">[</span>i<span class="hl opt">]]=</span>o<span class="hl opt">[</span>arr<span class="hl opt">[</span>i<span class="hl opt">]] || {};</span>
+        o<span class="hl opt">=</span>o<span class="hl opt">[</span>arr<span class="hl opt">[</span>i<span class="hl opt">]];</span>
+    <span class="hl opt">}</span>
+<span class="hl opt">}</span>
+
+<span class="hl com">/*!</span>
+<span class="hl com">* String prototype</span>
+<span class="hl com">* Date: 2013-11-18</span>
+<span class="hl com">*</span>
+<span class="hl com">* ltrim：去除string左边空白符</span>
+<span class="hl com">* rtrim：去除string右边空白符</span>
+<span class="hl com">* trim：去除string首尾空白符</span>
+<span class="hl com">* htmlEncode：把html字符串encode成普通字符串</span>
+<span class="hl com">* htmlDecode：把字符串decode为html字符串</span>
+<span class="hl com">* isStartsWith:判断字符串是否以参数开始</span>
+<span class="hl com">* isEndWith:判断字符串是否以参数结束</span>
+<span class="hl com">*/</span>
+String<span class="hl opt">.</span>format <span class="hl opt">=</span> <span class="hl kwa">function</span> <span class="hl opt">() {</span>
+    <span class="hl kwa">if</span> <span class="hl opt">(</span>arguments<span class="hl opt">.</span>length <span class="hl opt">==</span> <span class="hl num">0</span><span class="hl opt">)</span> <span class="hl kwa">return null</span><span class="hl opt">;</span>
+    <span class="hl kwa">var</span> str <span class="hl opt">=</span> arguments<span class="hl opt">[</span><span class="hl num">0</span><span class="hl opt">];</span>
+    <span class="hl kwa">for</span> <span class="hl opt">(</span><span class="hl kwa">var</span> i <span class="hl opt">=</span> <span class="hl num">1</span><span class="hl opt">;</span> i <span class="hl opt">&lt;</span> arguments<span class="hl opt">.</span>length<span class="hl opt">;</span> i<span class="hl opt">++) {</span>
+        <span class="hl kwa">var</span> regExp <span class="hl opt">=</span> <span class="hl kwa">new</span> <span class="hl kwd">RegExp</span><span class="hl opt">(</span><span class="hl str">'</span><span class="hl esc">\\</span><span class="hl str">{'</span> <span class="hl opt">+ (</span>i <span class="hl opt">-</span> <span class="hl num">1</span><span class="hl opt">) +</span> <span class="hl str">'</span><span class="hl esc">\\</span><span class="hl str">}'</span><span class="hl opt">,</span> <span class="hl str">'gm'</span><span class="hl opt">);</span>
+        str <span class="hl opt">=</span> str<span class="hl opt">.</span><span class="hl kwd">replace</span><span class="hl opt">(</span>regExp<span class="hl opt">,</span> arguments<span class="hl opt">[</span>i<span class="hl opt">])</span>
+    <span class="hl opt">}</span>
+    <span class="hl kwa">return</span> str<span class="hl opt">;</span>
+<span class="hl opt">};</span>
+
+<span class="hl kwa">if</span><span class="hl opt">(</span><span class="hl kwa">typeof</span> String<span class="hl opt">.</span><span class="hl kwa">prototype</span><span class="hl opt">.</span>ltrim<span class="hl opt">==</span><span class="hl str">'undefined'</span><span class="hl opt">){</span>
+    String<span class="hl opt">.</span><span class="hl kwa">prototype</span><span class="hl opt">.</span>ltrim <span class="hl opt">=</span> <span class="hl kwa">function</span><span class="hl opt">(){</span>
+        <span class="hl kwa">var</span> s <span class="hl opt">=</span> <span class="hl kwa">this</span><span class="hl opt">;</span>
+        s <span class="hl opt">=</span> s<span class="hl opt">.</span><span class="hl kwd">replace</span><span class="hl opt">(/^\</span>s*/g<span class="hl opt">,</span> <span class="hl str">''</span><span class="hl opt">);</span>
+        <span class="hl kwa">return</span> s<span class="hl opt">;</span>
+    <span class="hl opt">}</span>
+<span class="hl opt">}</span>
+
+<span class="hl kwa">if</span><span class="hl opt">(</span><span class="hl kwa">typeof</span> String<span class="hl opt">.</span><span class="hl kwa">prototype</span><span class="hl opt">.</span>rtrim<span class="hl opt">==</span><span class="hl str">'undefined'</span><span class="hl opt">){</span>
+    String<span class="hl opt">.</span><span class="hl kwa">prototype</span><span class="hl opt">.</span>rtrim <span class="hl opt">=</span> <span class="hl kwa">function</span><span class="hl opt">(){</span>
+        <span class="hl kwa">var</span> s <span class="hl opt">=</span> <span class="hl kwa">this</span><span class="hl opt">;</span>
+        s <span class="hl opt">=</span> s<span class="hl opt">.</span><span class="hl kwd">replace</span><span class="hl opt">(/\</span>s<span class="hl opt">*$/</span>g<span class="hl opt">,</span> <span class="hl str">''</span><span class="hl opt">);</span>
+        <span class="hl kwa">return</span> s<span class="hl opt">;</span>
+    <span class="hl opt">}</span>
+<span class="hl opt">}</span>
+
+<span class="hl kwa">if</span><span class="hl opt">(</span><span class="hl kwa">typeof</span> String<span class="hl opt">.</span><span class="hl kwa">prototype</span><span class="hl opt">.</span>trim<span class="hl opt">==</span><span class="hl str">'undefined'</span><span class="hl opt">){</span>
+    String<span class="hl opt">.</span><span class="hl kwa">prototype</span><span class="hl opt">.</span>trim <span class="hl opt">=</span> <span class="hl kwa">function</span><span class="hl opt">(){</span>
+        <span class="hl kwa">return this</span><span class="hl opt">.</span><span class="hl kwd">ltrim</span><span class="hl opt">().</span><span class="hl kwd">rtrim</span><span class="hl opt">();</span>
+    <span class="hl opt">}</span>
+<span class="hl opt">}</span>
+
+<span class="hl kwa">if</span><span class="hl opt">(</span><span class="hl kwa">typeof</span> String<span class="hl opt">.</span><span class="hl kwa">prototype</span><span class="hl opt">.</span>htmlEncode<span class="hl opt">==</span><span class="hl str">'undefined'</span><span class="hl opt">){</span>
+    String<span class="hl opt">.</span><span class="hl kwa">prototype</span><span class="hl opt">.</span>htmlEncode <span class="hl opt">=</span> <span class="hl kwa">function</span><span class="hl opt">(</span>encodeNewLine<span class="hl opt">){</span><span class="hl slc">//encodeNewLine:是否encode换行符</span>
+        <span class="hl kwa">var</span> s <span class="hl opt">=</span> <span class="hl kwa">this</span><span class="hl opt">;</span>
+        s <span class="hl opt">=</span> s<span class="hl opt">.</span><span class="hl kwd">replace</span><span class="hl opt">(/&amp;/</span>g<span class="hl opt">,</span> <span class="hl str">'&amp;amp;'</span><span class="hl opt">);</span>
+        s <span class="hl opt">=</span> s<span class="hl opt">.</span><span class="hl kwd">replace</span><span class="hl opt">(/&lt;/</span>g<span class="hl opt">,</span> <span class="hl str">'&amp;lt;'</span><span class="hl opt">);</span>
+        s <span class="hl opt">=</span> s<span class="hl opt">.</span><span class="hl kwd">replace</span><span class="hl opt">(/&gt;/</span>g<span class="hl opt">,</span> <span class="hl str">'&amp;gt;'</span><span class="hl opt">);</span>
+        s <span class="hl opt">=</span> s<span class="hl opt">.</span><span class="hl kwd">replace</span><span class="hl opt">(/</span><span class="hl str">'/g, '</span><span class="hl opt">&amp;</span>quot<span class="hl opt">;</span><span class="hl str">');</span>
+<span class="hl str">        if(encodeNewLine){</span>
+<span class="hl str">            s = s.replace(/</span><span class="hl esc">\r\n</span><span class="hl str">/g, '</span><span class="hl opt">&lt;</span>br <span class="hl opt">/&gt;</span><span class="hl str">');</span>
+<span class="hl str">            s = s.replace(/</span><span class="hl esc">\r</span><span class="hl str">/g, '</span><span class="hl opt">&lt;</span>br <span class="hl opt">/&gt;</span><span class="hl str">');</span>
+<span class="hl str">            s = s.replace(/</span><span class="hl esc">\n</span><span class="hl str">/g, '</span><span class="hl opt">&lt;</span>br <span class="hl opt">/&gt;</span><span class="hl str">');</span>
+<span class="hl str">        }</span>
+<span class="hl str">        return s;</span>
+<span class="hl str">    }</span>
+<span class="hl str">}</span>
+<span class="hl str"></span>
+<span class="hl str">if(typeof String.prototype.htmlDecode=='</span>undefined<span class="hl str">'){</span>
+<span class="hl str">    String.prototype.htmlDecode = function(decodeNewLine){//decodeNewLine：是否decode换行符</span>
+<span class="hl str">        var s = this;</span>
+<span class="hl str">        if(decodeNewLine){</span>
+<span class="hl str">            s = s.replace(/&lt;br\s*\/?&gt;/gi, '</span><span class="hl esc">\r\n</span><span class="hl str">');</span>
+<span class="hl str">        }</span>
+<span class="hl str">        s = s.replace(/&amp;quot;/g, '</span><span class="hl esc">\'</span><span class="hl str">');</span>
+<span class="hl str">        s = s.replace(/&amp;gt;/g, '</span><span class="hl opt">&gt;</span><span class="hl str">');</span>
+<span class="hl str">        s = s.replace(/&amp;lt;/g, '</span><span class="hl opt">&lt;</span><span class="hl str">');</span>
+<span class="hl str">        s = s.replace(/&amp;amp;/g, '</span><span class="hl opt">&amp;</span><span class="hl str">');</span>
+<span class="hl str">        return s;</span>
+<span class="hl str">    }</span>
+<span class="hl str">}</span>
+<span class="hl str"></span>
+<span class="hl str">if(typeof String.prototype.startsWith=='</span>undefined<span class="hl str">'){</span>
+<span class="hl str">    String.prototype.startsWith = function(start, ignoreCase){//start：欲判断字符， ignoreCase：是否忽略大小写</span>
+<span class="hl str">        var s = this;</span>
+<span class="hl str">        if(ignoreCase)</span>
+<span class="hl str">        {</span>
+<span class="hl str">            s = s.toLowerCase();</span>
+<span class="hl str">            end = end.toLowerCase();</span>
+<span class="hl str">        }</span>
+<span class="hl str">        if(s.substr(0, start.length) == start)</span>
+<span class="hl str">            return true;</span>
+<span class="hl str">        return false;</span>
+<span class="hl str">    }</span>
+<span class="hl str">}</span>
+<span class="hl str"></span>
+<span class="hl str">if(typeof String.prototype.endsWith=='</span>undefined<span class="hl str">'){</span>
+<span class="hl str">    String.prototype.endsWith = function(end, ignoreCase){//end：欲判断字符， ignoreCase：是否忽略大小写</span>
+<span class="hl str">        var s = this;</span>
+<span class="hl str">        if(ignoreCase){</span>
+<span class="hl str">            s = s.toLowerCase();</span>
+<span class="hl str">            end = end.toLowerCase();</span>
+<span class="hl str">        }</span>
+<span class="hl str">        if(s.substr(s.length - end.length) == end)</span>
+<span class="hl str">            return true;</span>
+<span class="hl str">        return false;</span>
+<span class="hl str">    }</span>
+<span class="hl str">}</span>
+<span class="hl str"></span>
+<span class="hl str">/*!</span>
+<span class="hl str">* Array prototype</span>
+<span class="hl str">* Date: 2013-11-18</span>
+<span class="hl str">*</span>
+<span class="hl str">* indexOf：返回参数在数组中index，不存在返回-1</span>
+<span class="hl str">* foreach: 数组迭代</span>
+<span class="hl str">*/</span>
+<span class="hl str">if(typeof Array.prototype.indexOf=='</span>undefined<span class="hl str">'){</span>
+<span class="hl str">    Array.prototype.indexOf=function(item,strict){//strict：是否严格相等（===）</span>
+<span class="hl str">        var index=-1;</span>
+<span class="hl str">        var strict=strict=='</span>undefined<span class="hl str">'? true : strict;</span>
+<span class="hl str">        var length=this.length;</span>
+<span class="hl str">        if(strict){</span>
+<span class="hl str">            for(var i=0;i&lt;length;i++){</span>
+<span class="hl str">                if(this[i]===item){</span>
+<span class="hl str">                    index=i;</span>
+<span class="hl str">                    break;</span>
+<span class="hl str">                }</span>
+<span class="hl str">            }</span>
+<span class="hl str">        }else{</span>
+<span class="hl str">            for(var i=0;i&lt;length;i++){</span>
+<span class="hl str">                if(this[i]==item){</span>
+<span class="hl str">                    index=i;</span>
+<span class="hl str">                    break;</span>
+<span class="hl str">                }</span>
+<span class="hl str">            }</span>
+<span class="hl str">        }</span>
+<span class="hl str">    }</span>
+<span class="hl str">}</span>
+<span class="hl str"></span>
+<span class="hl str">if(typeof Array.prototype.foreach == '</span>undefined<span class="hl str">'){</span>
+<span class="hl str">    Array.prototype.foreach = function (func) {</span>
+<span class="hl str">        if (func &amp;&amp; this.length &gt; 0) {</span>
+<span class="hl str">            for (var i = 0; i &lt; this.length; i++) {</span>
+<span class="hl str">                func(this[i])</span>
+<span class="hl str">            }</span>
+<span class="hl str">        }</span>
+<span class="hl str">    }</span>
+<span class="hl str">}</span>
+<span class="hl str"></span>
+<span class="hl str">/*!</span>
+<span class="hl str">* Date prototype</span>
+<span class="hl str">* Date: 2013-11-18</span>
+<span class="hl str">*</span>
+<span class="hl str">* format：格式化日期(网上找的，据说是个老外写的，但是找不到作者)</span>
+<span class="hl str">* getDaysInMonth：获取某月有多少天</span>
+<span class="hl str">*/</span>
+<span class="hl str">Date.getDaysInMonth = function (year, month) {</span>
+<span class="hl str">    var days = 0;</span>
+<span class="hl str">    switch (month) {</span>
+<span class="hl str">        case 1:</span>
+<span class="hl str">        case 3:</span>
+<span class="hl str">        case 5:</span>
+<span class="hl str">        case 7:</span>
+<span class="hl str">        case 8:</span>
+<span class="hl str">        case 10:</span>
+<span class="hl str">        case 12:</span>
+<span class="hl str">            days = 31</span>
+<span class="hl str">            break;</span>
+<span class="hl str">        case 4:</span>
+<span class="hl str">        case 6:</span>
+<span class="hl str">        case 9:</span>
+<span class="hl str">        case 11:</span>
+<span class="hl str">            days = 30;</span>
+<span class="hl str">            break;</span>
+<span class="hl str">        case 2:</span>
+<span class="hl str">            if (year % 400 == 0 || (year % 4 == 0 &amp;&amp; year % 100 != 0))</span>
+<span class="hl str">                days = 29;</span>
+<span class="hl str">            else</span>
+<span class="hl str">                days = 28;</span>
+<span class="hl str">            break;</span>
+<span class="hl str">    }</span>
+<span class="hl str">    return days;</span>
+<span class="hl str">}</span>
+<span class="hl str"></span>
+<span class="hl str">if (typeof Date.prototype.format == '</span>undefined<span class="hl str">') {</span>
+<span class="hl str">    Date.prototype.format = function (mask) {</span>
+<span class="hl str">        var d = this;</span>
+<span class="hl str">        var zeroize = function (value, length) {</span>
+<span class="hl str">            if (!length) length = 2;</span>
+<span class="hl str">            value = String(value);</span>
+<span class="hl str">            for (var i = 0, zeros = '</span><span class="hl str">'; i &lt; (length - value.length); i++) {</span>
+<span class="hl str">                zeros += '</span><span class="hl num">0</span><span class="hl str">';</span>
+<span class="hl str">            }</span>
+<span class="hl str">            return zeros + value;</span>
+<span class="hl str">        };</span>
+<span class="hl str"></span>
+<span class="hl str">        return mask.replace(/&quot;[^&quot;]*&quot;|'</span><span class="hl opt">[^</span><span class="hl str">']*'</span><span class="hl opt">|</span><span class="hl esc">\b</span><span class="hl opt">(?:</span>d<span class="hl opt">{</span><span class="hl num">1</span><span class="hl opt">,</span><span class="hl num">4</span><span class="hl opt">}|</span>m<span class="hl opt">{</span><span class="hl num">1</span><span class="hl opt">,</span><span class="hl num">4</span><span class="hl opt">}|</span><span class="hl kwd">yy</span><span class="hl opt">(?:</span>yy<span class="hl opt">)?|([</span>hHMstT<span class="hl opt">])\</span><span class="hl num">1</span><span class="hl opt">?|[</span>lLZ<span class="hl opt">])</span><span class="hl esc">\b</span><span class="hl opt">/</span>g<span class="hl opt">,</span> <span class="hl kwa">function</span> <span class="hl opt">($</span><span class="hl num">0</span><span class="hl opt">) {</span>
+            <span class="hl kwa">switch</span> <span class="hl opt">($</span><span class="hl num">0</span><span class="hl opt">) {</span>
+                <span class="hl kwa">case</span> <span class="hl str">'d'</span><span class="hl opt">:</span> <span class="hl kwa">return</span> d<span class="hl opt">.</span><span class="hl kwd">getDate</span><span class="hl opt">();</span>
+                <span class="hl kwa">case</span> <span class="hl str">'dd'</span><span class="hl opt">:</span> <span class="hl kwa">return</span> <span class="hl kwd">zeroize</span><span class="hl opt">(</span>d<span class="hl opt">.</span><span class="hl kwd">getDate</span><span class="hl opt">());</span>
+                <span class="hl kwa">case</span> <span class="hl str">'ddd'</span><span class="hl opt">:</span> <span class="hl kwa">return</span> <span class="hl opt">[</span><span class="hl str">'Sun'</span><span class="hl opt">,</span> <span class="hl str">'Mon'</span><span class="hl opt">,</span> <span class="hl str">'Tue'</span><span class="hl opt">,</span> <span class="hl str">'Wed'</span><span class="hl opt">,</span> <span class="hl str">'Thr'</span><span class="hl opt">,</span> <span class="hl str">'Fri'</span><span class="hl opt">,</span> <span class="hl str">'Sat'</span><span class="hl opt">][</span>d<span class="hl opt">.</span><span class="hl kwd">getDay</span><span class="hl opt">()];</span>
+                <span class="hl kwa">case</span> <span class="hl str">'dddd'</span><span class="hl opt">:</span> <span class="hl kwa">return</span> <span class="hl opt">[</span><span class="hl str">'Sunday'</span><span class="hl opt">,</span> <span class="hl str">'Monday'</span><span class="hl opt">,</span> <span class="hl str">'Tuesday'</span><span class="hl opt">,</span> <span class="hl str">'Wednesday'</span><span class="hl opt">,</span> <span class="hl str">'Thursday'</span><span class="hl opt">,</span> <span class="hl str">'Friday'</span><span class="hl opt">,</span> <span class="hl str">'Saturday'</span><span class="hl opt">][</span>d<span class="hl opt">.</span><span class="hl kwd">getDay</span><span class="hl opt">()];</span>
+                <span class="hl kwa">case</span> <span class="hl str">'M'</span><span class="hl opt">:</span> <span class="hl kwa">return</span> d<span class="hl opt">.</span><span class="hl kwd">getMonth</span><span class="hl opt">() +</span> <span class="hl num">1</span><span class="hl opt">;</span>
+                <span class="hl kwa">case</span> <span class="hl str">'MM'</span><span class="hl opt">:</span> <span class="hl kwa">return</span> <span class="hl kwd">zeroize</span><span class="hl opt">(</span>d<span class="hl opt">.</span><span class="hl kwd">getMonth</span><span class="hl opt">() +</span> <span class="hl num">1</span><span class="hl opt">);</span>
+                <span class="hl kwa">case</span> <span class="hl str">'MMM'</span><span class="hl opt">:</span> <span class="hl kwa">return</span> <span class="hl opt">[</span><span class="hl str">'Jan'</span><span class="hl opt">,</span> <span class="hl str">'Feb'</span><span class="hl opt">,</span> <span class="hl str">'Mar'</span><span class="hl opt">,</span> <span class="hl str">'Apr'</span><span class="hl opt">,</span> <span class="hl str">'May'</span><span class="hl opt">,</span> <span class="hl str">'Jun'</span><span class="hl opt">,</span> <span class="hl str">'Jul'</span><span class="hl opt">,</span> <span class="hl str">'Aug'</span><span class="hl opt">,</span> <span class="hl str">'Sep'</span><span class="hl opt">,</span> <span class="hl str">'Oct'</span><span class="hl opt">,</span> <span class="hl str">'Nov'</span><span class="hl opt">,</span> <span class="hl str">'Dec'</span><span class="hl opt">][</span>d<span class="hl opt">.</span><span class="hl kwd">getMonth</span><span class="hl opt">()];</span>
+                <span class="hl kwa">case</span> <span class="hl str">'MMMM'</span><span class="hl opt">:</span> <span class="hl kwa">return</span> <span class="hl opt">[</span><span class="hl str">'January'</span><span class="hl opt">,</span> <span class="hl str">'February'</span><span class="hl opt">,</span> <span class="hl str">'March'</span><span class="hl opt">,</span> <span class="hl str">'April'</span><span class="hl opt">,</span> <span class="hl str">'May'</span><span class="hl opt">,</span> <span class="hl str">'June'</span><span class="hl opt">,</span> <span class="hl str">'July'</span><span class="hl opt">,</span> <span class="hl str">'August'</span><span class="hl opt">,</span> <span class="hl str">'September'</span><span class="hl opt">,</span> <span class="hl str">'October'</span><span class="hl opt">,</span> <span class="hl str">'November'</span><span class="hl opt">,</span> <span class="hl str">'December'</span><span class="hl opt">][</span>d<span class="hl opt">.</span><span class="hl kwd">getMonth</span><span class="hl opt">()];</span>
+                <span class="hl kwa">case</span> <span class="hl str">'yy'</span><span class="hl opt">:</span> <span class="hl kwa">return</span> <span class="hl kwd">String</span><span class="hl opt">(</span>d<span class="hl opt">.</span><span class="hl kwd">getFullYear</span><span class="hl opt">()).</span><span class="hl kwd">substr</span><span class="hl opt">(</span><span class="hl num">2</span><span class="hl opt">);</span>
+                <span class="hl kwa">case</span> <span class="hl str">'yyyy'</span><span class="hl opt">:</span> <span class="hl kwa">return</span> d<span class="hl opt">.</span><span class="hl kwd">getFullYear</span><span class="hl opt">();</span>
+                <span class="hl kwa">case</span> <span class="hl str">'h'</span><span class="hl opt">:</span> <span class="hl kwa">return</span> d<span class="hl opt">.</span><span class="hl kwd">getHours</span><span class="hl opt">() %</span> <span class="hl num">12</span> <span class="hl opt">||</span> <span class="hl num">12</span><span class="hl opt">;</span>
+                <span class="hl kwa">case</span> <span class="hl str">'hh'</span><span class="hl opt">:</span> <span class="hl kwa">return</span> <span class="hl kwd">zeroize</span><span class="hl opt">(</span>d<span class="hl opt">.</span><span class="hl kwd">getHours</span><span class="hl opt">() %</span> <span class="hl num">12</span> <span class="hl opt">||</span> <span class="hl num">12</span><span class="hl opt">);</span>
+                <span class="hl kwa">case</span> <span class="hl str">'H'</span><span class="hl opt">:</span> <span class="hl kwa">return</span> d<span class="hl opt">.</span><span class="hl kwd">getHours</span><span class="hl opt">();</span>
+                <span class="hl kwa">case</span> <span class="hl str">'HH'</span><span class="hl opt">:</span> <span class="hl kwa">return</span> <span class="hl kwd">zeroize</span><span class="hl opt">(</span>d<span class="hl opt">.</span><span class="hl kwd">getHours</span><span class="hl opt">());</span>
+                <span class="hl kwa">case</span> <span class="hl str">'m'</span><span class="hl opt">:</span> <span class="hl kwa">return</span> d<span class="hl opt">.</span><span class="hl kwd">getMinutes</span><span class="hl opt">();</span>
+                <span class="hl kwa">case</span> <span class="hl str">'mm'</span><span class="hl opt">:</span> <span class="hl kwa">return</span> <span class="hl kwd">zeroize</span><span class="hl opt">(</span>d<span class="hl opt">.</span><span class="hl kwd">getMinutes</span><span class="hl opt">());</span>
+                <span class="hl kwa">case</span> <span class="hl str">'s'</span><span class="hl opt">:</span> <span class="hl kwa">return</span> d<span class="hl opt">.</span><span class="hl kwd">getSeconds</span><span class="hl opt">();</span>
+                <span class="hl kwa">case</span> <span class="hl str">'ss'</span><span class="hl opt">:</span> <span class="hl kwa">return</span> <span class="hl kwd">zeroize</span><span class="hl opt">(</span>d<span class="hl opt">.</span><span class="hl kwd">getSeconds</span><span class="hl opt">());</span>
+                <span class="hl kwa">case</span> <span class="hl str">'l'</span><span class="hl opt">:</span> <span class="hl kwa">return</span> <span class="hl kwd">zeroize</span><span class="hl opt">(</span>d<span class="hl opt">.</span><span class="hl kwd">getMilliseconds</span><span class="hl opt">(),</span> <span class="hl num">3</span><span class="hl opt">);</span>
+                <span class="hl kwa">case</span> <span class="hl str">'L'</span><span class="hl opt">:</span> <span class="hl kwa">var</span> m <span class="hl opt">=</span> d<span class="hl opt">.</span><span class="hl kwd">getMilliseconds</span><span class="hl opt">();</span>
+                    <span class="hl kwa">if</span> <span class="hl opt">(</span>m <span class="hl opt">&gt;</span> <span class="hl num">99</span><span class="hl opt">)</span> m <span class="hl opt">=</span> Math<span class="hl opt">.</span><span class="hl kwd">round</span><span class="hl opt">(</span>m <span class="hl opt">/</span> <span class="hl num">10</span><span class="hl opt">);</span>
+                    <span class="hl kwa">return</span> <span class="hl kwd">zeroize</span><span class="hl opt">(</span>m<span class="hl opt">);</span>
+                <span class="hl kwa">case</span> <span class="hl str">'tt'</span><span class="hl opt">:</span> <span class="hl kwa">return</span> d<span class="hl opt">.</span><span class="hl kwd">getHours</span><span class="hl opt">() &lt;</span> <span class="hl num">12</span> <span class="hl opt">?</span> <span class="hl str">'am'</span> <span class="hl opt">:</span> <span class="hl str">'pm'</span><span class="hl opt">;</span>
+                <span class="hl kwa">case</span> <span class="hl str">'TT'</span><span class="hl opt">:</span> <span class="hl kwa">return</span> d<span class="hl opt">.</span><span class="hl kwd">getHours</span><span class="hl opt">() &lt;</span> <span class="hl num">12</span> <span class="hl opt">?</span> <span class="hl str">'AM'</span> <span class="hl opt">:</span> <span class="hl str">'PM'</span><span class="hl opt">;</span>
+                <span class="hl kwa">case</span> <span class="hl str">'Z'</span><span class="hl opt">:</span> <span class="hl kwa">return</span> d<span class="hl opt">.</span><span class="hl kwd">toUTCString</span><span class="hl opt">().</span><span class="hl kwd">match</span><span class="hl opt">(/[</span>A<span class="hl opt">-</span>Z<span class="hl opt">]+$/);</span>
+                    <span class="hl slc">// Return quoted strings with the surrounding quotes removed</span>
+                <span class="hl kwa">default</span><span class="hl opt">:</span> <span class="hl kwa">return</span> <span class="hl opt">$</span><span class="hl num">0</span><span class="hl opt">.</span><span class="hl kwd">substr</span><span class="hl opt">(</span><span class="hl num">1</span><span class="hl opt">, $</span><span class="hl num">0</span><span class="hl opt">.</span>length <span class="hl opt">-</span> <span class="hl num">2</span><span class="hl opt">);</span>
+            <span class="hl opt">}</span>
+        <span class="hl opt">});</span>
+    <span class="hl opt">};</span>
+<span class="hl opt">}</span>
+
+<span class="hl com">/*!</span>
+<span class="hl com">* Event</span>
+<span class="hl com">* Date: 2013-11-26</span>
+<span class="hl com">*</span>
+<span class="hl com">*</span>
+<span class="hl com">*/</span>
+<span class="hl kwa">function</span> <span class="hl kwd">addEvent</span><span class="hl opt">(</span>node<span class="hl opt">,</span> type<span class="hl opt">,</span> handler<span class="hl opt">) {</span>
+    <span class="hl kwa">if</span> <span class="hl opt">(!</span>node<span class="hl opt">)</span> <span class="hl kwa">return false</span><span class="hl opt">;</span>
+    <span class="hl kwa">if</span> <span class="hl opt">(</span>node<span class="hl opt">.</span>addEventListener<span class="hl opt">) {</span>
+        node<span class="hl opt">.</span><span class="hl kwd">addEventListener</span><span class="hl opt">(</span>type<span class="hl opt">,</span> handler<span class="hl opt">,</span> <span class="hl kwa">false</span><span class="hl opt">);</span>
+        <span class="hl kwa">return true</span><span class="hl opt">;</span>
+    <span class="hl opt">}</span>
+    <span class="hl kwa">else if</span> <span class="hl opt">(</span>node<span class="hl opt">.</span>attachEvent<span class="hl opt">) {</span>
+        node<span class="hl opt">[</span><span class="hl str">'e'</span> <span class="hl opt">+</span> type <span class="hl opt">+</span> handler<span class="hl opt">] =</span> handler<span class="hl opt">;</span>
+        node<span class="hl opt">[</span>type <span class="hl opt">+</span> handler<span class="hl opt">] =</span> <span class="hl kwa">function</span><span class="hl opt">() {</span>
+            node<span class="hl opt">[</span><span class="hl str">'e'</span> <span class="hl opt">+</span> type <span class="hl opt">+</span> handler<span class="hl opt">](</span>window<span class="hl opt">.</span>event<span class="hl opt">);</span>
+        <span class="hl opt">};</span>
+        node<span class="hl opt">.</span><span class="hl kwd">attachEvent</span><span class="hl opt">(</span><span class="hl str">'on'</span> <span class="hl opt">+</span> type<span class="hl opt">,</span> node<span class="hl opt">[</span>type <span class="hl opt">+</span> handler<span class="hl opt">]);</span>
+        <span class="hl kwa">return true</span><span class="hl opt">;</span>
+    <span class="hl opt">}</span>
+    <span class="hl kwa">return false</span><span class="hl opt">;</span>
+<span class="hl opt">}</span>
+
+<span class="hl kwa">function</span> <span class="hl kwd">removeEvent</span><span class="hl opt">(</span>node<span class="hl opt">,</span> type<span class="hl opt">,</span> handler<span class="hl opt">) {</span>
+    <span class="hl kwa">if</span> <span class="hl opt">(!</span>node<span class="hl opt">)</span> <span class="hl kwa">return false</span><span class="hl opt">;</span>
+    <span class="hl kwa">if</span> <span class="hl opt">(</span>node<span class="hl opt">.</span>removeEventListener<span class="hl opt">) {</span>
+        node<span class="hl opt">.</span><span class="hl kwd">removeEventListener</span><span class="hl opt">(</span>type<span class="hl opt">,</span> handler<span class="hl opt">,</span> <span class="hl kwa">false</span><span class="hl opt">);</span>
+        <span class="hl kwa">return true</span><span class="hl opt">;</span>
+    <span class="hl opt">}</span>
+    <span class="hl kwa">else if</span> <span class="hl opt">(</span>node<span class="hl opt">.</span>detachEvent<span class="hl opt">) {</span>
+        node<span class="hl opt">.</span><span class="hl kwd">detachEvent</span><span class="hl opt">(</span><span class="hl str">'on'</span> <span class="hl opt">+</span> type<span class="hl opt">,</span> node<span class="hl opt">[</span>type <span class="hl opt">+</span> handler<span class="hl opt">]);</span>
+        node<span class="hl opt">[</span>type <span class="hl opt">+</span> handler<span class="hl opt">] =</span> <span class="hl kwa">null</span><span class="hl opt">;</span>
+    <span class="hl opt">}</span>
+    <span class="hl kwa">return false</span><span class="hl opt">;</span>
+<span class="hl opt">}</span>
+
+
+</pre>
+</body>
+</html>
+<!--HTML generated by highlight 3.16, http://www.andre-simon.de/-->
