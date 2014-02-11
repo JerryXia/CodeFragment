@@ -13,11 +13,13 @@ abbr,acronym { border:0}
 .f13{font-size:13px}
 .f14{font-size:14px}
 .f16{font-size:16px}
+.f18{font-size:18px}
 .f20{font-size:20px}
 .fb{font-weight:bold}
 .fn{font-weight:normal}
 .t2{text-indent:2em}
 .lh150{line-height:150%}
+.lh160{line-height:160%}
 .lh180{line-height:180%}
 .lh200{line-height:200%}
 .unl{text-decoration:underline;}
