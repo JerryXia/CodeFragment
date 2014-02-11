@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+
+
+
+<script>
+$.fn.coffee = function(obj){
+  for(var eName in obj)
+    for(var selector in obj[eName])
+      $(this).on(eName, selector, obj[eName][selector]);
+}
+
+$('.action-box').coffee({
+  click: {
+    '.btn-add': function(){
+        console.log('add');
+    },
+    //这是是支持jQuery的':last / [attr] / :eq(0)'等方法的 
+    '.btn-delete': function(){
+        console.log('delete');
+    }
+  },
+  mouseenter: {
+    '.btn-sort': function(){
+      console.log('mouseover');
+    }
+  }
+});
+</script>
+</body>
+</html>
