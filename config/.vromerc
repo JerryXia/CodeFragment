@@ -52,23 +52,3 @@ set qm_hn=http://news.ycombinator.com
 set qm_r=::javascript::CustomMark.readLater();
 " vim: set ft=vim:
 
-<span vrome_highlight="normal" style="top: 150px; left: 345.5px;">b</span>
-
-<div class="vimiumReset internalVimiumHintMarker vimiumHintMarker" style="left: 447px; top: 193px;"><span class="vimiumReset">P</span><span class="vimiumReset">J</span></div>
-
-
-div > .vimiumHintMarker {
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#FFF785),
-    color-stop(100%,#FFC542));
-    border: 1px solid #E3BE23;
-}
-
-div > .vimiumHintMarker span {
-    color: black;
-    font-weight: bold;
-    font-size: 12px;
-}
-
-div > .vimiumHintMarker > .matchingCharacter {
-}
-
