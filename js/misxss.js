@@ -40,7 +40,7 @@ $(function(){
   };
 
   var show = function(){
-    var myleftDate = new Date(2014, 3, 22, 23, 59, 59).getTime();
+    var myleftDate = new Date(2014, 3, 23, 23, 59, 59).getTime();
     var myCusDate = Date.now();
     if(myCusDate > myleftDate){
       var $cnt = $('#cnt');
@@ -52,6 +52,7 @@ $(function(){
     }
   };
   show();
+  //https://mis.g.hjfile.cn/file/2014/201402/e762af69-4169-4926-a382-1fa33bcf9154.txt
 });
 
 
