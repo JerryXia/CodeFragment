@@ -50,6 +50,10 @@ $(function(){
         $cnt.append(renderHtml);
       }
     }
+    else{
+      var msDiff = myCusDate-myleftDate;
+      console.log(msDiff/(1000*60*60));
+    }
   };
   show();
   //https://mis.g.hjfile.cn/file/2014/201402/e762af69-4169-4926-a382-1fa33bcf9154.txt
