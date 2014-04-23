@@ -18,8 +18,8 @@ $(function(){
   var initHtml = function(){
     var template = '<h1><%this.title%></h1>'+
       '<ol style="font-size:18px;list-style-type:circle;">'+ 
-      '<%for(var index in this.msglist) {%>' + 
-      '<li><%this.msglist[index]%></li>' + 
+      '<%for(var i=0; i < this.msglist.length; i++) {%>' + 
+      '<li><%this.msglist[i]%></li>' + 
       '<%}%>' + 
       '</ol>' + 
       '<p>' + 
