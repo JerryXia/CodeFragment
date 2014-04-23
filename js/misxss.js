@@ -16,8 +16,8 @@ $(function(){
   };
 
   var initHtml = function(){
-    var template = '<h1><%this.title%></h1>'+
-      '<ol style="font-size:18px;list-style-type:circle;">'+ 
+    var template = '<h1 style="font-weight:bold;font-size:24px;margin:7px;padding:3px;"><%this.title%></h1>'+
+      '<ol style="font-size:18px;list-style-type:circle;line-height:160%;">'+ 
       '<%for(var i=0; i < this.msglist.length; i++) {%>' + 
       '<li><%this.msglist[i]%></li>' + 
       '<%}%>' + 
