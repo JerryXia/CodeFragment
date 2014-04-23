@@ -16,16 +16,14 @@ $(function(){
   };
 
   var initHtml = function(){
-    var template = '<h2><%this.title%></h2>'+
+    var template = '<h1><%this.title%></h1>'+
       '<ol style="font-size:18px;list-style-type:circle;">'+ 
       '<%for(var index in this.msglist) {%>' + 
       '<li><%this.msglist[index]%></li>' + 
       '<%}%>' + 
       '</ol>' + 
       '<p>' + 
-      '<%for(var index in this.imglist) {%>' + 
-      '<img src="<%this.imglist[index]%>" />' + 
-      '<%}%>' +
+      '<img src="<%this.img%>" />' + 
       '</p>';
 
       var infoObj = {
@@ -36,9 +34,7 @@ $(function(){
           "然而，我将去寻找我的下一站；",
           "人生如旅，路茫茫，且行且珍惜！"
         ],
-        imglist: [
-          "https://mis.g.hjfile.cn/file/pic/201311/bc8acec6-b13f-4314-80ae-3507a107d53e_m.jpg"
-        ]
+        img: "https://mis.g.hjfile.cn/file/pic/201311/bc8acec6-b13f-4314-80ae-3507a107d53e_m.jpg"
       };
       return MySimpleTplEngine(template, infoObj);
   };
