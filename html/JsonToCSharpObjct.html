@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+</head>
+<body>
+<script>
+var buffer = new Object;
+
+function AddToBuffer(buf, name)
+{
+  var c = "public class " + name + " {\n\t" + buf.join("\n\t") + "\n}\n";
+  if(buffer[name])
+  {
+    if(buffer[name].length >= c.length)
+    {
+      return;
+    }
+  }
+  buffer[name] = c;
+}
+
+function GetCode()
+{
+  var out = "";
+  for(var o in buffer)
+  {
+    out += buffer[o] + "\n";
+  }
+  return out;
+}
+
+function JsonToCSharpObjct(obj, name)
+{
+  if (!obj) { return "null"; }
+  switch (obj.constructor)
+  {
+    case String: return "string " + name;
+    case Number: return "decimal " + name;
+    case Boolean: return "bool " + name;
+    case Array :
+      var buf = [];
+      for (i in obj)
+      {
+        JsonToCSharpObjct(obj[i], name);
+      }
+      return name + "[] " + name;
+    case Object:
+      var buf = [];
+      for (k in obj)
+      {
+        buf.push("public " + JsonToCSharpObjct(obj[k], k) + ";");
+      }
+      AddToBuffer(buf, name);
+      return name;
+    default: return "unknown";
+  }
+}
+
+var s = document.selection.Text;
+var obj = eval("(" + s + ")");
+JsonToCSharpObjct(obj, "Root");
+document.selection.Text = GetCode();
+
+</script>
+</body>
+</html>
