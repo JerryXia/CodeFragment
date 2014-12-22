@@ -8,7 +8,7 @@ map  K gT
 map  j 10j
 map  k 10k
 
-map Esc C-Esc
+map Esc <C-Esc>
 
 
 unmap <C-d>
