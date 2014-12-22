@@ -1,12 +1,15 @@
 """ """ .vromerc file
 
-map  r <C-r>
+map  rr <C-r>
 
 map  J gt
 map  K gT
 
 map  j 10j
 map  k 10k
+
+map Esc C-Esc
+
 
 unmap <C-d>
 
