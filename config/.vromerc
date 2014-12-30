@@ -1,6 +1,6 @@
 """ """ .vromerc file
 
-map  rr <C-r>
+map  r <C-r>
 
 map  J gt
 map  K gT
