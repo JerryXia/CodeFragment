@@ -26,6 +26,29 @@ public string GetHtml(TemplateCode tc)
 }
 
 // 优化后
+readonly static Func<string>[] GetTemplate = InitTemplateFunction();
+
+private static Func<string>[] InitTemplateFunction()
+{
+    var arr = new Func<string>[5];
+    arr[1] = GetHead;
+    arr[2] = GetMenu;
+    arr[3] = GetFoot;
+    arr[4] = GetWelcome;
+    return arr;
+}
+
+public string GetHtml(TemplateCode tc)
+{
+    var index = (int)tc;
+    if (index >= 1 && index <= 4)
+    {
+        return GetTemplate[index]();
+    }
+    throw new ArgumentOutOfRangeException("tc");
+}
+
+
 // 不过有的时候,枚举不一定都是连续的数字,那么也可以使用Dictionary
 readonly static Dictionary<TemplateCode, Func<string>> TemplateDict = InitTemplateFunction();
 
