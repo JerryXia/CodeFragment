@@ -13,7 +13,9 @@ NGINX_DATA="/usr/jexus/siteconf"
 # backup fileName
 #mysql_DATA=mysql_$(date +"%Y%m%d").tar.gz
 www_DEFAULT=default_$(date +%Y%m%d).tar.gz
-nginx_CONFIG=nginx_$(date +%Y%m%d).tar.gz
+jexus_CONFIG=jexus_$(date +%Y%m%d).tar.gz
+
+CUR_DIR=$(cd `dirname $0` && pwd -P)
 
 # if not exists  then create
 if [ ! -d $BACK_DIR ] ;
@@ -41,15 +43,15 @@ cd $BACK_DIR
 tar -zcvf $www_DEFAULT $BACKUP_DEFAULT
 
 # zip nginx config file
-tar -zcvf $nginx_CONFIG $NGINX_DATA/*.*
+tar -zcvf $jexus_CONFIG $NGINX_DATA
 
 # upload
 cd ~
-/home/azureuser/bpcs_uploader.php upload $BACK_DIR/$nginx_CONFIG $baidupan_DIR/$nginx_CONFIG
-#/home/azureuser/bpcs_uploader.php upload $BACK_DIR/$mysql_DATA $baidupan_DIR/$mysql_DATA
-/home/azureuser/bpcs_uploader.php upload $BACK_DIR/$www_DEFAULT $baidupan_DIR/$www_DEFAULT
+#python /home/azureuser/bdpan-py/example.py upload $BACK_DIR/$mysql_DATA $baidupan_DIR/$mysql_DATA
+python /home/azureuser/bdpan-py/example.py upload $CUR_DIR/$BACK_DIR/$www_DEFAULT $baidupan_DIR/$www_DEFAULT
+python /home/azureuser/bdpan-py/example.py upload $CUR_DIR/$BACK_DIR/$jexus_CONFIG $baidupan_DIR/$jexus_CONFIG
 
 # Delete all local backup
-rm -rf $BACK_DIR
+rm -rf $CUR_DIR/$BACK_DIR
 
 exit 0
