@@ -11,9 +11,10 @@ if __name__ == '__main__':
     p1 = sys.argv[2]
     p2 = sys.argv[3]
     p4 = sys.argv[4]
-    print action
-    print p1
-    print p2
+    print 'Action          :' + action
+    print 'Local File      :' + p1
+    print 'BaiduYun BakFile:' + p2
+    print 'AccessToken     :' + p4
     access_token = p4
     disk = BaiduPan(access_token)
     if action == 'upload':
