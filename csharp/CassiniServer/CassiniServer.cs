@@ -49,8 +49,7 @@ namespace CassiniServer
                 this.SizeChanged += new System.EventHandler(this.Form1_SizeChanged);
 
                 Random random = new Random();
-                //Port = random.Next(1000, 65535);
-                Port = 80;
+                Port = random.Next(1000, 65535);
                 virtualPath = "/";
                 physicalPath = Application.StartupPath.Substring(0, Application.StartupPath.LastIndexOf("\\"));
                 server = new Server(Port, VirtualPath, PhysicalPath);

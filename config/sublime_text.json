@@ -1,0 +1,45 @@
+{
+  "auto_complete": false,
+  "caret_style": "solid",
+  "color_scheme": "Packages/Tomorrow Color Schemes/Tomorrow-Night-Eighties.tmTheme",
+  "draw_white_space": "all",
+  "ensure_newline_at_eof_on_save": true,
+  "file_exclude_patterns":
+  [
+    ".DS_Store",
+    "*.pid",
+    "*.pyc"
+  ],
+  "fold_buttons": true,
+  "folder_exclude_patterns":
+  [
+    ".git",
+    "__pycache__",
+    "env",
+    "env3"
+  ],
+  "font_face": "Consolas",
+  "font_size": 11,
+  "highlight_line": true,
+  "http_proxy": "http://127.0.0.1:8088",
+  "https_proxy": "https://127.0.0.1:8088",
+  "ignored_packages":
+  [
+    "Vintage"
+  ],
+  "rulers":
+  [
+    80,
+    100,
+    120
+  ],
+  "show_minimap": false,
+  "tab_size": 2,
+  "theme": "Soda Dark 3.sublime-theme",
+  "translate_tabs_to_spaces": true,
+  "trim_trailing_white_space_on_save": true,
+  "update_check": false,
+  "wide_caret": true,
+  "word_wrap": true,
+  "wrap_width": 120
+}
