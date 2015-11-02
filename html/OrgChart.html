@@ -1,0 +1,106 @@
+
+<!DOCTYPE html>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <title>jOrgChart - A jQuery OrgChart Plugin</title>
+    <link rel="stylesheet" href="https://dl.dropboxusercontent.com/u/4151695/html/jOrgChart/example/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://dl.dropboxusercontent.com/u/4151695/html/jOrgChart/example/css/jquery.jOrgChart.css"/>
+    <link rel="stylesheet" href="https://dl.dropboxusercontent.com/u/4151695/html/jOrgChart/example/css/custom.css"/>
+    <link href="https://dl.dropboxusercontent.com/u/4151695/html/jOrgChart/example/css/prettify.css" type="text/css" rel="stylesheet" />
+
+    <script type="text/javascript" src="https://dl.dropboxusercontent.com/u/4151695/html/jOrgChart/example/prettify.js"></script>
+
+    <!-- jQuery includes -->
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+
+    <script src="https://dl.dropboxusercontent.com/u/4151695/html/jOrgChart/example/jquery.jOrgChart.js"></script>
+
+    <script>
+    jQuery(document).ready(function() {
+        $("#org").jOrgChart({
+            chartElement : '#chart',
+            dragAndDrop  : true
+        });
+    });
+    </script>
+  </head>
+
+  <body onload="prettyPrint();">
+    <div class="topbar">
+        <div class="topbar-inner">
+            <div class="container">
+                <div class="pull-right">
+                    <div class="alert-message info" id="show-list">Show underlying list.</div>
+                    <pre class="prettyprint lang-html" id="list-html" style="display:none"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <ul id="org" style="display:none">
+        <li><br><font size="4">Balance</font>
+           <ul>
+             <li id="beer"><br>redis 192.168.1.10</li>
+             <li><br>nginx2 192.168.1.13
+               <ul>
+                 <li>mongodb 192.168.1.16</li>
+                 <li>mongodb 192.168.1.19</li>
+               </ul>
+             </li>
+             <li class="fruit"><br/>nginx3 192.168.1.24
+               <ul>
+                 <li>php 192.168.1.28
+                   <ul>
+                     <li>mysql 192.168.1.33</li>
+                     <li>mysql 192.168.1.37</li>
+                   </ul>
+                 </li>
+
+               </ul>
+             </li>
+             <li>spider 192.168.1.41</li>
+             <li class="collapsed">nginx5 192.168.1.44
+               <ul>
+                 <li>Topdeck</li>
+                 <li>Reese's Cups</li>
+               </ul>
+             </li>
+           </ul>
+         </li>
+   </ul>
+
+    <div id="chart" class="orgChart"></div>
+
+    <script>
+        jQuery(document).ready(function() {
+
+            /* Custom jQuery for the example */
+            $("#show-list").click(function(e){
+                e.preventDefault();
+
+                $('#list-html').toggle('fast', function(){
+                    if($(this).is(':visible')){
+                        $('#show-list').text('Hide underlying list.');
+                        $(".topbar").fadeTo('fast',0.9);
+                    }else{
+                        $('#show-list').text('Show underlying list.');
+                        $(".topbar").fadeTo('fast',1);
+                    }
+                });
+            });
+
+            $('#list-html').text($('#org').html());
+
+            $("#org").bind("DOMSubtreeModified", function() {
+                $('#list-html').text('');
+
+                $('#list-html').text($('#org').html());
+
+                prettyPrint();
+            });
+        });
+    </script>
+
+</body>
+</html>
