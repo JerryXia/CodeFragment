@@ -1,11 +1,12 @@
-
 <!DOCTYPE html>
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>jOrgChart - A jQuery OrgChart Plugin</title>
     <link rel="stylesheet" href="https://dl.dropboxusercontent.com/u/4151695/html/jOrgChart/example/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="https://dl.dropboxusercontent.com/u/4151695/html/jOrgChart/example/css/jquery.jOrgChart.css"/>
     <link rel="stylesheet" href="https://dl.dropboxusercontent.com/u/4151695/html/jOrgChart/example/css/custom.css"/>
-    <link href="https://dl.dropboxusercontent.com/u/4151695/html/jOrgChart/example/css/prettify.css" type="text/css" rel="stylesheet" />
+    <link type="text/css" rel="stylesheet" href="https://dl.dropboxusercontent.com/u/4151695/html/jOrgChart/example/css/prettify.css" />
 
     <script type="text/javascript" src="https://dl.dropboxusercontent.com/u/4151695/html/jOrgChart/example/prettify.js"></script>
 
@@ -23,9 +24,8 @@
         });
     });
     </script>
-  </head>
-
-  <body onload="prettyPrint();">
+</head>
+<body onload="prettyPrint();">
     <div class="topbar">
         <div class="topbar-inner">
             <div class="container">
@@ -36,39 +36,36 @@
             </div>
         </div>
     </div>
-
-
     <ul id="org" style="display:none">
         <li><br><font size="4">Balance</font>
            <ul>
-             <li id="beer"><br>redis 192.168.1.10</li>
+             <li><br>redis 192.168.1.10</li>
              <li><br>nginx2 192.168.1.13
                <ul>
-                 <li>mongodb 192.168.1.16</li>
-                 <li>mongodb 192.168.1.19</li>
+                 <li><br/>mongodb 192.168.1.16</li>
+                 <li><br/>mongodb 192.168.1.19</li>
                </ul>
              </li>
-             <li class="fruit"><br/>nginx3 192.168.1.24
+             <li><br/>nginx3 192.168.1.24
                <ul>
-                 <li>php 192.168.1.28
+                 <li><br/>php 192.168.1.28
                    <ul>
-                     <li>mysql 192.168.1.33</li>
-                     <li>mysql 192.168.1.37</li>
+                     <li><br/>mysql 192.168.1.33</li>
+                     <li><br/>mysql 192.168.1.37</li>
                    </ul>
                  </li>
-
                </ul>
              </li>
-             <li>spider 192.168.1.41</li>
-             <li class="collapsed">nginx5 192.168.1.44
+             <li><br/>spider 192.168.1.41</li>
+             <li class="collapsed"><br/>nginx5 192.168.1.44
                <ul>
-                 <li>Topdeck</li>
-                 <li>Reese's Cups</li>
+                 <li><br/>Topdeck</li>
+                 <li><br/>Reese's Cups</li>
                </ul>
              </li>
            </ul>
          </li>
-   </ul>
+    </ul>
 
     <div id="chart" class="orgChart"></div>
 
@@ -93,7 +90,7 @@
             $('#list-html').text($('#org').html());
 
             $("#org").bind("DOMSubtreeModified", function() {
-                $('#list-html').text('');
+                //$('#list-html').text('');
 
                 $('#list-html').text($('#org').html());
 
