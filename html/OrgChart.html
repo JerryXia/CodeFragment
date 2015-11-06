@@ -1,30 +1,28 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>jOrgChart - A jQuery OrgChart Plugin</title>
-    <link rel="stylesheet" href="https://dl.dropboxusercontent.com/u/4151695/html/jOrgChart/example/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="https://dl.dropboxusercontent.com/u/4151695/html/jOrgChart/example/css/jquery.jOrgChart.css"/>
-    <link rel="stylesheet" href="https://dl.dropboxusercontent.com/u/4151695/html/jOrgChart/example/css/custom.css"/>
+    <link rel="stylesheet" href="https://dl.dropboxusercontent.com/u/4151695/html/jOrgChart/example/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://dl.dropboxusercontent.com/u/4151695/html/jOrgChart/example/css/jquery.jOrgChart.css" />
+    <link rel="stylesheet" href="https://dl.dropboxusercontent.com/u/4151695/html/jOrgChart/example/css/custom.css" />
     <link type="text/css" rel="stylesheet" href="https://dl.dropboxusercontent.com/u/4151695/html/jOrgChart/example/css/prettify.css" />
-
     <script type="text/javascript" src="https://dl.dropboxusercontent.com/u/4151695/html/jOrgChart/example/prettify.js"></script>
-
     <!-- jQuery includes -->
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
-
     <script src="https://dl.dropboxusercontent.com/u/4151695/html/jOrgChart/example/jquery.jOrgChart.js"></script>
-
     <script>
     jQuery(document).ready(function() {
         $("#org").jOrgChart({
-            chartElement : '#chart',
-            dragAndDrop  : true
+            chartElement: '#chart',
+            dragAndDrop: true
         });
     });
     </script>
 </head>
+
 <body onload="prettyPrint();">
     <div class="topbar">
         <div class="topbar-inner">
@@ -37,67 +35,79 @@
         </div>
     </div>
     <ul id="org" style="display:none">
-        <li><br><font size="4">Balance</font>
-           <ul>
-             <li><br>redis 192.168.1.10</li>
-             <li><br>nginx2 192.168.1.13
-               <ul>
-                 <li><br/>mongodb 192.168.1.16</li>
-                 <li><br/>mongodb 192.168.1.19</li>
-               </ul>
-             </li>
-             <li><br/>nginx3 192.168.1.24
-               <ul>
-                 <li><br/>php 192.168.1.28
-                   <ul>
-                     <li><br/>mysql 192.168.1.33</li>
-                     <li><br/>mysql 192.168.1.37</li>
-                   </ul>
-                 </li>
-               </ul>
-             </li>
-             <li><br/>spider 192.168.1.41</li>
-             <li class="collapsed"><br/>nginx5 192.168.1.44
-               <ul>
-                 <li><br/>Topdeck</li>
-                 <li><br/>Reese's Cups</li>
-               </ul>
-             </li>
-           </ul>
-         </li>
+        <li>
+            <br>
+            <font size="4">Balance</font>
+            <ul>
+                <li>
+                    <br>redis 192.168.1.10</li>
+                <li>
+                    <br>nginx2 192.168.1.13
+                    <ul>
+                        <li>
+                            <br/>mongodb 192.168.1.16</li>
+                        <li>
+                            <br/>mongodb 192.168.1.19</li>
+                    </ul>
+                </li>
+                <li>
+                    <br/>nginx3 192.168.1.24
+                    <ul>
+                        <li>
+                            <br/>php 192.168.1.28
+                            <ul>
+                                <li>
+                                    <br/>mysql 192.168.1.33</li>
+                                <li>
+                                    <br/>mysql 192.168.1.37</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <br/>spider 192.168.1.41</li>
+                <li class="collapsed">
+                    <br/>nginx5 192.168.1.44
+                    <ul>
+                        <li>
+                            <br/>Topdeck</li>
+                        <li>
+                            <br/>Reese's Cups</li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
     </ul>
-
     <div id="chart" class="orgChart"></div>
-
     <script>
-        jQuery(document).ready(function() {
+    jQuery(document).ready(function() {
 
-            /* Custom jQuery for the example */
-            $("#show-list").click(function(e){
-                e.preventDefault();
+        /* Custom jQuery for the example */
+        $("#show-list").click(function(e) {
+            e.preventDefault();
 
-                $('#list-html').toggle('fast', function(){
-                    if($(this).is(':visible')){
-                        $('#show-list').text('Hide underlying list.');
-                        $(".topbar").fadeTo('fast',0.9);
-                    }else{
-                        $('#show-list').text('Show underlying list.');
-                        $(".topbar").fadeTo('fast',1);
-                    }
-                });
+            $('#list-html').toggle('fast', function() {
+                if ($(this).is(':visible')) {
+                    $('#show-list').text('Hide underlying list.');
+                    $(".topbar").fadeTo('fast', 0.9);
+                } else {
+                    $('#show-list').text('Show underlying list.');
+                    $(".topbar").fadeTo('fast', 1);
+                }
             });
+        });
+
+        $('#list-html').text($('#org').html());
+
+        $("#org").bind("DOMSubtreeModified", function() {
+            //$('#list-html').text('');
 
             $('#list-html').text($('#org').html());
 
-            $("#org").bind("DOMSubtreeModified", function() {
-                //$('#list-html').text('');
-
-                $('#list-html').text($('#org').html());
-
-                prettyPrint();
-            });
+            prettyPrint();
         });
+    });
     </script>
-
 </body>
+
 </html>
