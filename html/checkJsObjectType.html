@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    <script type="text/javascript">
+        (function(){
+            var class2type = {};
+            var typeList = "Boolean Number String Function Array Date RegExp Object Error Symbol".split( " " );
+
+            typeList.eachEach(function(item){
+                class2type[ "[object " + item + "]" ] = item.toLowerCase();
+            }
+
+            return {
+                getObjType:function(obj) {
+                    if ( obj == null ) {
+                        return obj + "";
+                    }
+
+                    if(typeof obj === "object" || typeof obj === "function"){
+
+                        return class2type[ toString.call( obj ) ] || "object"
+
+                    }else {
+                        return typeof obj;
+                    }
+                }
+            }
+        })()
+    </script>
+</body>
+</html>
