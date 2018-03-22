@@ -1,17 +1,17 @@
 function loadScript(src, errorCallback, obj) {
 	var tag = document.createElement("script");
 	tag.type = 'text/javascript';
-    tag.charset="utf-8";
+    tag.charset = 'utf-8';
+    tag.src = src;
     tag.onload = tag.onerror = tag.onreadystatechange = function() {
-    	if (window[obj]) { // º”‘ÿ≥…π¶
-    		loadJs.onloadTime = +new Date();
+    	if (window[obj]) {
+            // Âä†ËΩΩÊàêÂäü
     		return;
     	}
-        if ( !this.readyState ||((this.readyState === "loaded" || this.readyState === "complete")&&!window[obj]) ) {
+        if ( !this.readyState || ( (this.readyState === "loaded" || this.readyState === "complete") && !window[obj]) ) {
             errorCallback&&errorCallback(); 
             tag.onerror = tag.onreadystatechange = null;
         }
     };
-	tag.src = src;
 	document.getElementsByTagName("head")[0].appendChild(tag);
 };
