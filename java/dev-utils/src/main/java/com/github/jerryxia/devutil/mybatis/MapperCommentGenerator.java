@@ -13,6 +13,7 @@ import org.mybatis.generator.config.MergeConstants;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * 
@@ -255,6 +256,37 @@ public class MapperCommentGenerator implements CommentGenerator {
         }
         method.addJavaDocLine(sb.toString());
         method.addJavaDocLine(" */");
+    }
+
+
+    @Override
+    public void addGeneralMethodAnnotation(Method method, IntrospectedTable introspectedTable,
+            Set<FullyQualifiedJavaType> imports) {
+
+    }
+
+    @Override
+    public void addGeneralMethodAnnotation(Method method, IntrospectedTable introspectedTable,
+            IntrospectedColumn introspectedColumn, Set<FullyQualifiedJavaType> imports) {
+
+    }
+
+    @Override
+    public void addFieldAnnotation(Field field, IntrospectedTable introspectedTable,
+            Set<FullyQualifiedJavaType> imports) {
+
+    }
+
+    @Override
+    public void addFieldAnnotation(Field field, IntrospectedTable introspectedTable,
+            IntrospectedColumn introspectedColumn, Set<FullyQualifiedJavaType> imports) {
+
+    }
+
+    @Override
+    public void addClassAnnotation(InnerClass innerClass, IntrospectedTable introspectedTable,
+            Set<FullyQualifiedJavaType> imports) {
+
     }
 
 }
