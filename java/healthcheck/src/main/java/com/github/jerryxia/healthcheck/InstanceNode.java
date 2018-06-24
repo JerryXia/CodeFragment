@@ -8,6 +8,7 @@ import java.util.ArrayList;
 public class InstanceNode {
     private String serverName;
     private ArrayList<ServerNode> nodes;
+
     public String getServerName() {
         return serverName;
     }
@@ -20,8 +21,4 @@ public class InstanceNode {
     public void setNodes(ArrayList<ServerNode> nodes) {
         this.nodes = nodes;
     }
-    
-    
-    
-    
 }

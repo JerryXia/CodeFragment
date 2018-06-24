@@ -1,10 +1,6 @@
 package com.github.jerryxia.healthcheck;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-
-import org.apache.commons.io.FileUtils;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -49,8 +45,7 @@ public class AppTest extends TestCase {
         Thread thread = new Thread(task);
         thread.setDaemon(true);
         thread.start();
-        
-        
+ 
 //        task.callShell("ipconfig");
 //        try {
 //            FileUtils.writeStringToFile(new File("D:/1.txt"), "adsf\n");

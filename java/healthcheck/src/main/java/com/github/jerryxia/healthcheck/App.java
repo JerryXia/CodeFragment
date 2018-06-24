@@ -9,19 +9,23 @@ import java.net.URLDecoder;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.alibaba.fastjson.JSON;
 
 public class App {
-    private static String CURRENT_DIR       = getCurrJarDir();
-    private static String SHUTDOWN_PID_FILE = CURRENT_DIR + "/healthcheck.pid";
-    private static String PID               = getProcessID();
+    private static final Log log               = LogFactory.getLog(App.class);
+    private static String    CURRENT_DIR       = getCurrJarDir();
+    private static String    SHUTDOWN_PID_FILE = CURRENT_DIR + "/healthcheck.pid";
+    private static String    PID               = getProcessID();
 
     public static void main(String[] args) throws IOException {
         String jsonConfigFile = CURRENT_DIR + "/nodes.json";
         if (args.length > 0) {
             jsonConfigFile = args[0];
         }
+
         String jsonConfigFileContent = FileUtils.readFileToString(new File(jsonConfigFile));
         List<InstanceNode> serverNodes = JSON.parseArray(jsonConfigFileContent, InstanceNode.class);
         initCheckWorkers(serverNodes);
@@ -34,14 +38,13 @@ public class App {
                 if (shutDownFile.exists()) {
                     Thread.sleep(1000);
                 } else {
-                    System.out.println("shutdown......");
+                    log.info("shutdown......");
                     System.exit(0);
                 }
             } catch (InterruptedException e) {
-                System.err.println(e);
+                log.warn("shutdown-watcher-thread Interrupted", e);
             }
         }
-
     }
 
     private static String getCurrJarDir() {
@@ -77,5 +80,4 @@ public class App {
             thread.start();
         }
     }
-
 }

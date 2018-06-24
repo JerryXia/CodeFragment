@@ -62,8 +62,4 @@ public class ServerNode {
     public void setActived(boolean actived) {
         this.actived = actived;
     }
-    
-    
-    
-    
 }
