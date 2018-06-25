@@ -25,7 +25,14 @@ public class App {
         if (args.length > 0) {
             jsonConfigFile = args[0];
         }
-
+        // if(args.length > 1) {
+        // String type = args[1];
+        // if("test".equalsIgnoreCase(type)) {
+        // String callShellResult = new CheckTask(new InstanceNode()).callShell("nginx -t");
+        // log.info(IOUtils.LINE_SEPARATOR_UNIX + callShellResult);
+        // }
+        // System.exit(0);
+        // }
         String jsonConfigFileContent = FileUtils.readFileToString(new File(jsonConfigFile));
         List<InstanceNode> serverNodes = JSON.parseArray(jsonConfigFileContent, InstanceNode.class);
         initCheckWorkers(serverNodes);

@@ -63,7 +63,6 @@ public class CheckTask implements Runnable {
 
         String nginxConf = generateNginxConf();
         String nowHash = DigestUtils.md5Hex(nginxConf);
-        log.debug("lastHash: " + (this.lastStatusHash == null ? "null" : this.lastStatusHash) + "nowHash: " + nowHash);
         if (nowHash.equalsIgnoreCase(this.lastStatusHash)) {
             // 不变
         } else {
@@ -74,18 +73,17 @@ public class CheckTask implements Runnable {
                 log.error("FileUtils.writeStringToFile error", e);
             }
 
-            log.info("execute: nginx -t");
-            String nginxConfCheck = callShell("nginx -t");
-            // nginx -t
+            log.info("execute: nginx -t" + IOUtils.LINE_SEPARATOR_UNIX);
+            String nginxConfCheckResult = callShell("nginx -t");
             // nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
             // nginx: configuration file /etc/nginx/nginx.conf test is successful
-            if (nginxConfCheck != null && (nginxConfCheck.indexOf("syntax is ok") > -1
-                    || nginxConfCheck.indexOf("test is successful") > -1)) {
+            if (nginxConfCheckResult != null && (nginxConfCheckResult.indexOf("syntax is ok") > -1
+                    || nginxConfCheckResult.indexOf("test is successful") > -1)) {
                 String nginxReload = callShell("nginx -s reload");
-                log.info("nginx conf is ok, execute: nginx -s reload, result: " + nginxReload);
+                log.info(IOUtils.LINE_SEPARATOR_UNIX + "nginx conf is ok, execute: nginx -s reload, result: " + nginxReload + IOUtils.LINE_SEPARATOR_UNIX);
                 this.lastStatusHash = nowHash;
             } else {
-                log.warn("execute: nginx -t, result: " + nginxConfCheck);
+                log.error(IOUtils.LINE_SEPARATOR_UNIX + "nginx conf is error, result: " + IOUtils.LINE_SEPARATOR_UNIX + nginxConfCheckResult);
             }
         }
     }
@@ -94,15 +92,17 @@ public class CheckTask implements Runnable {
         String shellResult = null;
         Process process = null;
         try {
-            process = Runtime.getRuntime().exec(shellString);
+            // process = Runtime.getRuntime().exec(shellString);
+            String[] cmdarray = { "/bin/sh", "-c", shellString };
+            process = new ProcessBuilder(cmdarray).directory(null).redirectErrorStream(true).start();
+
             int exitValue = process.waitFor();
-            if (0 != exitValue) {
-                log.error("callShell fail, error code is :" + exitValue);
-                shellResult = null;
+            if (0 == exitValue) {
+                // OK
             } else {
-                char[] chars = IOUtils.toCharArray(process.getInputStream(), "UTF-8");
-                shellResult = new String(chars);
+                log.error("callShell fail, exitValue is :" + exitValue);
             }
+            shellResult = IOUtils.toString(process.getInputStream(), "UTF-8");
         } catch (Exception e) {
             log.error("callShell error", e);
             shellResult = null;
