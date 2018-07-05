@@ -6,7 +6,6 @@ package com.github.jerryxia.devutil;
 import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -42,14 +41,7 @@ public class SystemClock {
     }
 
     private void scheduleClockUpdating() {
-        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-            @Override
-            public Thread newThread(Runnable runnable) {
-                Thread thread = new Thread(runnable, "devutil-SystemClock");
-                thread.setDaemon(true);
-                return thread;
-            }
-        });
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(new CustomNameThreadFactory("SystemClock"));
         scheduler.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
