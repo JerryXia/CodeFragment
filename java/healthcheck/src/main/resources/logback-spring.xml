@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+  <include resource="org/springframework/boot/logging/logback/base.xml" />
+
+  <logger name="org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor" level="DEBUG" />
+
+  <springProfile name="dev">
+    <root level="INFO">
+      <appender-ref ref="CONSOLE" />
+    </root>
+  </springProfile>
+  <springProfile name="test">
+    <root level="INFO">
+      <appender-ref ref="FILE" />
+    </root>
+  </springProfile>
+  <springProfile name="prod">
+    <root level="INFO">
+      <appender-ref ref="FILE" />
+    </root>
+  </springProfile>
+</configuration>
