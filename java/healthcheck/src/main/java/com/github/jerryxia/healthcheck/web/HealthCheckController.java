@@ -38,17 +38,14 @@ public class HealthCheckController extends BaseController {
     private Environment env;
 
     private static String CONF_DIR;
-    private static File   CONF_SERVER_NODES_FILE;
-
-    private JavaType serverNodeArrayListType;
 
     @PostConstruct
     public void init() throws IOException {
         CONF_DIR = env.getProperty("app.conf.dir");
         Const.FTL_Configuration.setDirectoryForTemplateLoading(new File(CONF_DIR));
-        CONF_SERVER_NODES_FILE = new File(CONF_DIR + "/serverNodes.json");
-        initFile(CONF_SERVER_NODES_FILE, "[]");
-        serverNodeArrayListType = JsonMapper.INSTANCE.buildCollectionType(ArrayList.class, ServerNode.class);
+        Const.CONF_SERVER_NODES_FILE = new File(CONF_DIR + "/serverNodes.json");
+        initFile(Const.CONF_SERVER_NODES_FILE, "[]");
+        Const.ServerNodeArrayListType = JsonMapper.INSTANCE.buildCollectionType(ArrayList.class, ServerNode.class);
     }
 
     private void initFile(File file, String content) {
@@ -74,8 +71,8 @@ public class HealthCheckController extends BaseController {
         ArrayList<ServerNode> serverNodes = null;
         String prettyContent = null;
         try {
-            String confContent = FileUtil.toString(CONF_SERVER_NODES_FILE);
-            serverNodes = JsonMapper.INSTANCE.fromJson(confContent, serverNodeArrayListType);
+            String confContent = FileUtil.toString(Const.CONF_SERVER_NODES_FILE);
+            serverNodes = JsonMapper.INSTANCE.fromJson(confContent, Const.ServerNodeArrayListType);
             prettyContent = JsonMapper.INSTANCE.getMapper().writerWithDefaultPrettyPrinter()
                     .writeValueAsString(serverNodes);
         } catch (IOException e) {
@@ -97,11 +94,11 @@ public class HealthCheckController extends BaseController {
     public GeneralResponse appNodesSave(String content) {
         val response = okResponse();
 
-        ArrayList<ServerNode> serverNodes = JsonMapper.INSTANCE.fromJson(content, serverNodeArrayListType);
+        ArrayList<ServerNode> serverNodes = JsonMapper.INSTANCE.fromJson(content, Const.ServerNodeArrayListType);
         if (serverNodes != null) {
             String savingJsonContent = JsonMapper.INSTANCE.toJson(serverNodes);
             try {
-                FileUtil.write(savingJsonContent, CONF_SERVER_NODES_FILE);
+                FileUtil.write(savingJsonContent, Const.CONF_SERVER_NODES_FILE);
             } catch (IOException e) {
                 failResponse(response, "保存失败");
             }
@@ -117,8 +114,8 @@ public class HealthCheckController extends BaseController {
 
         ArrayList<ServerNode> serverNodes = null;
         try {
-            String confContent = FileUtil.toString(CONF_SERVER_NODES_FILE);
-            serverNodes = JsonMapper.INSTANCE.fromJson(confContent, serverNodeArrayListType);
+            String confContent = FileUtil.toString(Const.CONF_SERVER_NODES_FILE);
+            serverNodes = JsonMapper.INSTANCE.fromJson(confContent, Const.ServerNodeArrayListType);
         } catch (IOException e) {
             log.error("serverNodes.json read fail", e);
         }
@@ -181,8 +178,8 @@ public class HealthCheckController extends BaseController {
         RecordLogViewStatusMessagesServlet.info("手动刷新配置......", this);
         ArrayList<ServerNode> serverNodes = null;
         try {
-            String confContent = FileUtil.toString(CONF_SERVER_NODES_FILE);
-            serverNodes = JsonMapper.INSTANCE.fromJson(confContent, serverNodeArrayListType);
+            String confContent = FileUtil.toString(Const.CONF_SERVER_NODES_FILE);
+            serverNodes = JsonMapper.INSTANCE.fromJson(confContent, Const.ServerNodeArrayListType);
         } catch (IOException e) {
             log.error("serverNodes.json read fail", e);
         }

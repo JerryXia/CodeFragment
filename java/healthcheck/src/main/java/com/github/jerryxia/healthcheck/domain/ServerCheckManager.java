@@ -14,7 +14,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.Assert;
+import org.springside.modules.utils.io.FileUtil;
 import org.springside.modules.utils.io.type.StringBuilderWriter;
+import org.springside.modules.utils.mapper.JsonMapper;
 
 import com.github.jerryxia.healthcheck.common.Const;
 import com.github.jerryxia.healthcheck.util.RecordLogViewStatusMessagesServlet;
@@ -71,6 +73,23 @@ public class ServerCheckManager {
             }
         }
         workForLoadBalance();
+
+        ArrayList<ServerNode> serverNodes = null;
+        try {
+            String confContent = FileUtil.toString(Const.CONF_SERVER_NODES_FILE);
+            serverNodes = JsonMapper.INSTANCE.fromJson(confContent, Const.ServerNodeArrayListType);
+            for(int i = 0; i < serverNodes.size(); i++) {
+                ServerNode curr = serverNodes.get(i);
+                if(this.serverNode.getServerName().equals(curr.getServerName())) {
+                    serverNodes.set(i, this.serverNode);
+                    break;
+                }
+            }
+            String savingJsonContent = JsonMapper.INSTANCE.toJson(serverNodes);
+            FileUtil.write(savingJsonContent, Const.CONF_SERVER_NODES_FILE);
+        } catch (IOException e) {
+            log.error("serverNodes.json read or write fail", e);
+        }
     }
 
     public void workForLoadBalance() {

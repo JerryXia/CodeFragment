@@ -15,8 +15,6 @@ import org.apache.http.client.utils.HttpClientUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
-import com.github.jerryxia.healthcheck.util.RecordLogViewStatusMessagesServlet;
-
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -76,8 +74,8 @@ public class CheckTask implements Runnable {
         } catch (ClientProtocolException e) {
             log.error("getUrl ClientProtocolException", e);
         } catch (IOException e) {
-            log.info("getUrl IOException", e);
-            RecordLogViewStatusMessagesServlet.info(e.getMessage(), this);
+            log.debug("getUrl IOException", e);
+            //RecordLogViewStatusMessagesServlet.info(e.getMessage(), this);
         } catch (Exception e) {
             log.error("getUrl Exception", e);
         } finally {
