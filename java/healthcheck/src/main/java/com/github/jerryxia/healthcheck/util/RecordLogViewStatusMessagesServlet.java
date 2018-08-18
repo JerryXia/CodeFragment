@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import ch.qos.logback.access.AccessConstants;
 import ch.qos.logback.core.BasicStatusManager;
+import ch.qos.logback.core.status.ErrorStatus;
 import ch.qos.logback.core.status.InfoStatus;
 import ch.qos.logback.core.status.StatusManager;
 
@@ -23,10 +24,14 @@ public class RecordLogViewStatusMessagesServlet extends ch.qos.logback.access.Vi
 
     @Override
     protected StatusManager getStatusManager(HttpServletRequest req, HttpServletResponse resp) {
+        resp.setCharacterEncoding("UTF-8");
+
         ServletContext sc = getServletContext();
         Object statusManagerObj = sc.getAttribute(AccessConstants.LOGBACK_STATUS_MANAGER_KEY);
         if (statusManagerObj == null) {
-            CURRENT_STATUS_MANAGER = new BasicStatusManager();
+            if (CURRENT_STATUS_MANAGER == null) {
+                CURRENT_STATUS_MANAGER = new BasicStatusManager();
+            }
             sc.setAttribute(AccessConstants.LOGBACK_STATUS_MANAGER_KEY, CURRENT_STATUS_MANAGER);
         } else {
             if (CURRENT_STATUS_MANAGER == null) {
@@ -38,10 +43,20 @@ public class RecordLogViewStatusMessagesServlet extends ch.qos.logback.access.Vi
 
     @Override
     protected String getPageTitle(HttpServletRequest req, HttpServletResponse resp) {
-        return "<h2>日志记录</h2>\r\n";
+        return "<h2>处理日志记录</h2>";
     }
 
     public static void info(String msg, Object origin) {
+        if (CURRENT_STATUS_MANAGER == null) {
+            CURRENT_STATUS_MANAGER = new BasicStatusManager();
+        }
         CURRENT_STATUS_MANAGER.add(new InfoStatus(msg, origin));
+    }
+
+    public static void error(String msg, Object origin) {
+        if (CURRENT_STATUS_MANAGER == null) {
+            CURRENT_STATUS_MANAGER = new BasicStatusManager();
+        }
+        CURRENT_STATUS_MANAGER.add(new ErrorStatus(msg, origin));
     }
 }

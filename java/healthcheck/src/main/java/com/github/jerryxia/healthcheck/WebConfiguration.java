@@ -13,8 +13,7 @@ import no.api.freemarker.java8.Java8ObjectWrapper;
 // public class WebConfiguration extends WebMvcConfigurerAdapter {
 public class WebConfiguration {
     @Bean
-    public freemarker.template.Configuration freeMarkerConfigurationEx(
-            freemarker.template.Configuration configuration) {
+    public freemarker.template.Configuration freeMarkerConfigurationEx(freemarker.template.Configuration configuration) {
         val java8ObjectWrapper = new Java8ObjectWrapper(freemarker.template.Configuration.VERSION_2_3_26);
         configuration.setObjectWrapper(java8ObjectWrapper);
         // String staticFileUrlPrefix = env.getProperty("app.staticfile.urlprefix", "");

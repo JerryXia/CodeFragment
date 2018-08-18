@@ -21,10 +21,12 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springside.modules.utils.io.FileUtil;
 import org.springside.modules.utils.mapper.JsonMapper;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.github.jerryxia.devutil.dataobject.web.response.GeneralResponse;
-import com.github.jerryxia.healthcheck.model.ServerNode;
+import com.github.jerryxia.healthcheck.common.Const;
+import com.github.jerryxia.healthcheck.domain.ServerCheckFactory;
+import com.github.jerryxia.healthcheck.domain.ServerNode;
 import com.github.jerryxia.healthcheck.util.RecordLogViewStatusMessagesServlet;
-import com.github.jerryxia.healthcheck.model.HealthCheckConf;
 
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
@@ -38,11 +40,15 @@ public class HealthCheckController extends BaseController {
     private static String CONF_DIR;
     private static File   CONF_SERVER_NODES_FILE;
 
+    private JavaType serverNodeArrayListType;
+
     @PostConstruct
-    public void init() {
+    public void init() throws IOException {
         CONF_DIR = env.getProperty("app.conf.dir");
+        Const.FTL_Configuration.setDirectoryForTemplateLoading(new File(CONF_DIR));
         CONF_SERVER_NODES_FILE = new File(CONF_DIR + "/serverNodes.json");
         initFile(CONF_SERVER_NODES_FILE, "[]");
+        serverNodeArrayListType = JsonMapper.INSTANCE.buildCollectionType(ArrayList.class, ServerNode.class);
     }
 
     private void initFile(File file, String content) {
@@ -69,8 +75,7 @@ public class HealthCheckController extends BaseController {
         String prettyContent = null;
         try {
             String confContent = FileUtil.toString(CONF_SERVER_NODES_FILE);
-            val javaType = JsonMapper.INSTANCE.buildCollectionType(ArrayList.class, ServerNode.class);
-            serverNodes = JsonMapper.INSTANCE.fromJson(confContent, javaType);
+            serverNodes = JsonMapper.INSTANCE.fromJson(confContent, serverNodeArrayListType);
             prettyContent = JsonMapper.INSTANCE.getMapper().writerWithDefaultPrettyPrinter()
                     .writeValueAsString(serverNodes);
         } catch (IOException e) {
@@ -86,13 +91,13 @@ public class HealthCheckController extends BaseController {
 
         return mv;
     }
+
     @ResponseBody
     @PostMapping("/healthcheck/appNodesSave")
     public GeneralResponse appNodesSave(String content) {
         val response = okResponse();
 
-        val javaType = JsonMapper.INSTANCE.buildCollectionType(ArrayList.class, ServerNode.class);
-        ArrayList<ServerNode> serverNodes = JsonMapper.INSTANCE.fromJson(content, javaType);
+        ArrayList<ServerNode> serverNodes = JsonMapper.INSTANCE.fromJson(content, serverNodeArrayListType);
         if (serverNodes != null) {
             String savingJsonContent = JsonMapper.INSTANCE.toJson(serverNodes);
             try {
@@ -113,13 +118,12 @@ public class HealthCheckController extends BaseController {
         ArrayList<ServerNode> serverNodes = null;
         try {
             String confContent = FileUtil.toString(CONF_SERVER_NODES_FILE);
-            val javaType = JsonMapper.INSTANCE.buildCollectionType(ArrayList.class, ServerNode.class);
-            serverNodes = JsonMapper.INSTANCE.fromJson(confContent, javaType);
+            serverNodes = JsonMapper.INSTANCE.fromJson(confContent, serverNodeArrayListType);
         } catch (IOException e) {
             log.error("serverNodes.json read fail", e);
         }
 
-        if(StringUtils.isNotEmpty(serverName)) {
+        if (StringUtils.isNotEmpty(serverName)) {
             ServerNode currentServerNode = null;
             if (serverNodes != null) {
                 for (val serverNode : serverNodes) {
@@ -147,12 +151,11 @@ public class HealthCheckController extends BaseController {
         return mv;
     }
 
-
     @GetMapping("/healthcheck/serverHkRobots")
     public ModelAndView serverHkRobots() {
         ModelAndView mv = new ModelAndView("healthcheck/serverHkRobots");
 
-        RecordLogViewStatusMessagesServlet.info("ererer", this);
+        mv.addObject("managers", ServerCheckFactory.MANAGERS);
 
         mv.addObject("menuKey", 3);
         mv.addObject("title", "检测Robot");
@@ -160,5 +163,34 @@ public class HealthCheckController extends BaseController {
         mv.addObject("description", "");
         return mv;
     }
-    
+
+    @GetMapping("/healthcheck/lbClassicStatusFrame")
+    public ModelAndView lbClassicStatusFrame() {
+        ModelAndView mv = new ModelAndView("healthcheck/lbClassicStatusFrame");
+        mv.addObject("menuKey", 4);
+        mv.addObject("title", "日志记录");
+        mv.addObject("keywords", "");
+        mv.addObject("description", "");
+        return mv;
+    }
+
+    @ResponseBody
+    @PostMapping("/healthcheck/refreshServerNodes")
+    public GeneralResponse refreshServerNodes() {
+        val response = okResponse();
+        RecordLogViewStatusMessagesServlet.info("手动刷新配置......", this);
+        ArrayList<ServerNode> serverNodes = null;
+        try {
+            String confContent = FileUtil.toString(CONF_SERVER_NODES_FILE);
+            serverNodes = JsonMapper.INSTANCE.fromJson(confContent, serverNodeArrayListType);
+        } catch (IOException e) {
+            log.error("serverNodes.json read fail", e);
+        }
+        if (serverNodes != null) {
+            ServerCheckFactory.dispatch(serverNodes);
+        } else {
+            failResponse(response, "serverNodes读取异常");
+        }
+        return response;
+    }
 }

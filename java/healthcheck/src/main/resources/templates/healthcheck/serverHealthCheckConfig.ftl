@@ -53,6 +53,9 @@ label.left, span.left {
                         </div>
                     </form>
                 <#else>
+                    <div class="rel mt30">
+                        <input type="button" id="btnRefreshFromConfig" class="ui-button ui-button-warning" value="刷新" />
+                    </div>
                     <table class="ui-table mt15">
                         <thead>
                             <tr>
@@ -98,6 +101,25 @@ seajs.config(config).use(['common/comp/Form', 'common/ui/Dialog'], function(Form
         }
     }, {
         label: true
+    });
+
+    $('#btnRefreshFromConfig').click(function() {
+        var refreshConfirm = new Dialog().confirm('确定要刷新吗？确保你修改的是的正确格式的配置文件！', {
+            buttons: [{
+                events: {
+                    click: function() {
+                        $.post('/healthcheck/refreshServerNodes', {}, function(res) {
+                            if(res.code === 0) {
+                                refreshConfirm.remove();
+                                location.href = '/healthcheck/lbClassicStatusFrame';
+                            } else {
+                                new Dialog().alert('<h6>'+res.msg+'</h6>', { type: 'warning' });
+                            }
+                        });
+                    }
+                }
+            }, {}]
+        });
     });
 });
 </script>

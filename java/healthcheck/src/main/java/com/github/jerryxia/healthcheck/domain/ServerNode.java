@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.github.jerryxia.healthcheck.model;
+package com.github.jerryxia.healthcheck.domain;
 
 import java.util.ArrayList;
 
@@ -12,4 +12,5 @@ public class ServerNode {
     private String serverName;
     private ArrayList<InstanceNode> nodes;
     private HealthCheckConf hkConf;
+    private String vhostConfTplFilePath;
 }

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.github.jerryxia.healthcheck.model;
+package com.github.jerryxia.healthcheck.domain;
 
 import lombok.Data;
 
@@ -11,4 +11,5 @@ public class InstanceNode {
     private int port;
 
     private int weight;
+    private boolean actived;
 }
