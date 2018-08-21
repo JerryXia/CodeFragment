@@ -36,19 +36,21 @@
                         <thead>
                             <tr>
                               <th scope="col">域名</th>
+                              <th scope="col">upstream_group</th>
                               <th scope="col">节点</th>
                               <th scope="col">权重</th>
                               <th scope="col">存活</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <#if appNodes?size gt 0 >
-                                <#list appNodes as appNode>
-                                <#list appNode.nodes as node>
-                                    <tr>
-                                        <#if appNode.nodes?? >
+                            <#if serverNodes?size gt 0 >
+                                <#list serverNodes as serverNode>
+                                  <#list serverNode.groups?keys as groupKey>
+                                    <#list serverNode.groups[groupKey].nodes as node>
+                                        <tr>
                                             <#if node?index == 0>
-                                                <td rowspan="${appNode.nodes?size}">${appNode.serverName}</td>
+                                                <td rowspan="${serverNode.groups[groupKey].nodes?size}">${serverNode.serverName}</td>
+                                                <td rowspan="${serverNode.groups[groupKey].nodes?size}">${groupKey}</td>
                                             </#if>
                                             <td>${node.ip}:${node.port?c}</td>
                                             <td>${node.weight?c}</td>
@@ -62,12 +64,11 @@
                                                     <label class="ui-switch" for="${activeId}"></label> 
                                                 </#if>
                                             </td>
-                                        <#else>
-                                            <td>${appNode.serverName}</td>
-                                            <td></td><td></td><td></td>
-                                        </#if>
-                                    </tr>
-                                </#list>
+                                        </tr>
+                                    <#else>
+                                        <tr><td>${appNode.serverName}</td><td></td><td></td><td></td><td></td></tr>
+                                    </#list>
+                                  </#list>
                                 </#list>
                             </#if>
                         </tbody>

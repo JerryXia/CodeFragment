@@ -23,18 +23,19 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class CheckTask implements Runnable {
-    private static final RequestConfig REQUEST_CONFIG         = RequestConfig.custom().setConnectionRequestTimeout(1234)
-            .setConnectTimeout(1234).setSocketTimeout(1234).build();
+    private static final RequestConfig REQUEST_CONFIG         = RequestConfig.custom().setConnectionRequestTimeout(2000).setConnectTimeout(2000).setSocketTimeout(2000).build();
     private static final long          DEFAULT_CHECK_INTERVAL = 1000;
 
     private final ServerCheckManager   checkingManager;
+    private final String               groupName;
     private final CheckingInstanceNode checkingInstanceNode;
 
     private boolean working = true;
     private boolean active;
 
-    public CheckTask(final ServerCheckManager manager, final CheckingInstanceNode checkingInstanceNode) {
+    public CheckTask(final ServerCheckManager manager, final String groupName, final CheckingInstanceNode checkingInstanceNode) {
         this.checkingManager = manager;
+        this.groupName = groupName;
         this.checkingInstanceNode = checkingInstanceNode;
         this.active = this.checkingInstanceNode.isActived();
     }
@@ -46,7 +47,7 @@ public class CheckTask implements Runnable {
         } else {
             this.active = nowIsActive;
             this.checkingInstanceNode.setActived(nowIsActive);
-            this.checkingManager.receiveUpdateReport(this.checkingInstanceNode);
+            this.checkingManager.receiveUpdateReport(this.groupName, this.checkingInstanceNode);
         }
     }
 
@@ -55,8 +56,7 @@ public class CheckTask implements Runnable {
         CloseableHttpClient httpclient = HttpClients.createDefault();
         CloseableHttpResponse httpResponse = null;
         try {
-            String uri = String.format("http://%s:%d%s?%s=%d", node.getIp(), node.getPort(), node.getPath(),
-                    node.getQueryWithTimestampParamName(), System.currentTimeMillis());
+            String uri = String.format("http://%s:%d%s?%s=%d", node.getIp(), node.getPort(), node.getPath(), node.getQueryWithTimestampParamName(), System.currentTimeMillis());
             HttpGet httpget = new HttpGet(uri);
             httpget.setHeader("User-Agent", "HealthChecker");
             if (StringUtils.isNotBlank(node.getCookie())) {
@@ -75,7 +75,7 @@ public class CheckTask implements Runnable {
             log.error("getUrl ClientProtocolException", e);
         } catch (IOException e) {
             log.debug("getUrl IOException", e);
-            //RecordLogViewStatusMessagesServlet.info(e.getMessage(), this);
+            // RecordLogViewStatusMessagesServlet.info(e.getMessage(), this);
         } catch (Exception e) {
             log.error("getUrl Exception", e);
         } finally {
@@ -87,12 +87,12 @@ public class CheckTask implements Runnable {
 
     @Override
     public void run() {
-        while (working) {
+        while (this.working) {
             try {
                 checkNode(this.checkingInstanceNode);
                 Thread.sleep(DEFAULT_CHECK_INTERVAL);
             } catch (InterruptedException e) {
-                working = false;
+                this.working = false;
                 log.info("{} interrupted", Thread.currentThread().getName());
             }
         }

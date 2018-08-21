@@ -21,9 +21,9 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springside.modules.utils.io.FileUtil;
 import org.springside.modules.utils.mapper.JsonMapper;
 
-import com.fasterxml.jackson.databind.JavaType;
 import com.github.jerryxia.devutil.dataobject.web.response.GeneralResponse;
 import com.github.jerryxia.healthcheck.common.Const;
+import com.github.jerryxia.healthcheck.domain.InstanceNodeGroup;
 import com.github.jerryxia.healthcheck.domain.ServerCheckFactory;
 import com.github.jerryxia.healthcheck.domain.ServerNode;
 import com.github.jerryxia.healthcheck.util.RecordLogViewStatusMessagesServlet;
@@ -73,12 +73,11 @@ public class HealthCheckController extends BaseController {
         try {
             String confContent = FileUtil.toString(Const.CONF_SERVER_NODES_FILE);
             serverNodes = JsonMapper.INSTANCE.fromJson(confContent, Const.ServerNodeArrayListType);
-            prettyContent = JsonMapper.INSTANCE.getMapper().writerWithDefaultPrettyPrinter()
-                    .writeValueAsString(serverNodes);
+            prettyContent = JsonMapper.INSTANCE.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(serverNodes);
         } catch (IOException e) {
             log.error("serverNodes.json read fail", e);
         }
-        mv.addObject("appNodes", serverNodes);
+        mv.addObject("serverNodes", serverNodes);
         mv.addObject("prettyServerNodeConfContent", prettyContent);
 
         mv.addObject("menuKey", 1);
@@ -109,7 +108,7 @@ public class HealthCheckController extends BaseController {
     }
 
     @GetMapping("/healthcheck/serverHealthCheckConfig")
-    public ModelAndView serverHealthCheckConfig(@RequestParam(name = "s", defaultValue = "") String serverName) {
+    public ModelAndView serverHealthCheckConfig(@RequestParam(name = "s", defaultValue = "") String serverName, @RequestParam(name = "g", defaultValue = "") String groupName) {
         ModelAndView mv = new ModelAndView("healthcheck/serverHealthCheckConfig");
 
         ArrayList<ServerNode> serverNodes = null;
@@ -120,7 +119,7 @@ public class HealthCheckController extends BaseController {
             log.error("serverNodes.json read fail", e);
         }
 
-        if (StringUtils.isNotEmpty(serverName)) {
+        if (StringUtils.isNotEmpty(serverName) && StringUtils.isNotEmpty(groupName)) {
             ServerNode currentServerNode = null;
             if (serverNodes != null) {
                 for (val serverNode : serverNodes) {
@@ -130,10 +129,16 @@ public class HealthCheckController extends BaseController {
                     }
                 }
             }
+            InstanceNodeGroup instanceNodeGroup = null;
+            if (currentServerNode != null) {
+                instanceNodeGroup = currentServerNode.getGroups().get(groupName);
+            }
+
             // 单个模式
             mv.addObject("itemEditMode", currentServerNode != null);
             mv.addObject("serverName", serverName);
-            mv.addObject("currentServerHkConf", currentServerNode.getHkConf());
+            mv.addObject("currentServerNode", currentServerNode);
+            mv.addObject("instanceNodeGroup", instanceNodeGroup);
         } else {
             // 列表模式
             mv.addObject("itemEditMode", false);

@@ -37,13 +37,12 @@ public class ServerCheckFactory {
                     } else {
                         serverCheckManager.stop();
                     }
-
-                    val managersIterator = MANAGERS.entrySet().iterator();
-                    while (managersIterator.hasNext()) {
-                        val entry = managersIterator.next();
-                        entry.getValue().start();
-                    }
                 }
+            }
+            val managersIterator = MANAGERS.entrySet().iterator();
+            while (managersIterator.hasNext()) {
+                val entry = managersIterator.next();
+                entry.getValue().start();
             }
             log.info("dispatch new ServerCheckManager end");
         } else {

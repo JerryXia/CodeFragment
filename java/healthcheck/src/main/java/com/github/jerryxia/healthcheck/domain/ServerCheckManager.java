@@ -34,21 +34,24 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class ServerCheckManager {
+    private final ServerNode         serverNode;
     private ServerCheckManagerStatus status;
     private ArrayList<Thread>        serverCheckWorkers;
-
-    private final ServerNode serverNode;
-    private String           lastStatusHash;
+    private String                   lastStatusHash;
 
     public ServerCheckManager(ServerNode node) throws IOException {
         Assert.notNull(node, "serverNode can not be null");
-        Assert.notNull(node.getNodes(), "instanceNodes can not be null");
+        Assert.notNull(node.getGroups(), "groups can not be null");
 
         if (StringUtils.isBlank(node.getVhostConfTplFilePath())) {
             node.setVhostConfTplFilePath(node.getServerName() + ".conf.ftl");
         }
         this.serverNode = node;
         this.status = ServerCheckManagerStatus.STOPPED;
+    }
+
+    public ServerNode getServerNode() {
+        return serverNode;
     }
 
     public ServerCheckManagerStatus getStatus() {
@@ -59,17 +62,14 @@ public class ServerCheckManager {
         return serverCheckWorkers;
     }
 
-    public ServerNode getServerNode() {
-        return serverNode;
-    }
-
-
-    public synchronized void receiveUpdateReport(final CheckingInstanceNode checkingInstanceNode) {
-        for (InstanceNode instanceNode : serverNode.getNodes()) {
-            if (instanceNode.getIp().equals(checkingInstanceNode.getIp())
-                    && instanceNode.getPort() == checkingInstanceNode.getPort()) {
-                instanceNode.setActived(checkingInstanceNode.isActived());
-                break;
+    public synchronized void receiveUpdateReport(final String groupName, final CheckingInstanceNode checkingInstanceNode) {
+        InstanceNodeGroup instanceNodeGroup = serverNode.getGroups().get(groupName);
+        if (instanceNodeGroup != null) {
+            for (InstanceNode instanceNode : instanceNodeGroup.getNodes()) {
+                if (instanceNode.getIp().equals(checkingInstanceNode.getIp()) && instanceNode.getPort() == checkingInstanceNode.getPort()) {
+                    instanceNode.setActived(checkingInstanceNode.isActived());
+                    break;
+                }
             }
         }
         workForLoadBalance();
@@ -78,9 +78,9 @@ public class ServerCheckManager {
         try {
             String confContent = FileUtil.toString(Const.CONF_SERVER_NODES_FILE);
             serverNodes = JsonMapper.INSTANCE.fromJson(confContent, Const.ServerNodeArrayListType);
-            for(int i = 0; i < serverNodes.size(); i++) {
+            for (int i = 0; i < serverNodes.size(); i++) {
                 ServerNode curr = serverNodes.get(i);
-                if(this.serverNode.getServerName().equals(curr.getServerName())) {
+                if (this.serverNode.getServerName().equals(curr.getServerName())) {
                     serverNodes.set(i, this.serverNode);
                     break;
                 }
@@ -111,8 +111,7 @@ public class ServerCheckManager {
 
             doubleInfo("执行命令: nginx -t");
             String nginxConfCheckResult = callShell("nginx -t");
-            if (nginxConfCheckResult != null && (nginxConfCheckResult.indexOf("syntax is ok") > -1
-                    || nginxConfCheckResult.indexOf("test is successful") > -1)) {
+            if (nginxConfCheckResult != null && (nginxConfCheckResult.indexOf("syntax is ok") > -1 || nginxConfCheckResult.indexOf("test is successful") > -1)) {
                 // nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
                 // nginx: configuration file /etc/nginx/nginx.conf test is successful
                 doubleInfo("执行命令: nginx -s reload 的结果--||");
@@ -142,7 +141,7 @@ public class ServerCheckManager {
         if (ftl != null) {
             val dataModel = new HashMap<String, Object>();
             dataModel.put("serverName", this.serverNode.getServerName());
-            dataModel.put("instanceNodes", this.serverNode.getNodes());
+            dataModel.put("instanceNodeGroups", this.serverNode.getGroups());
             try {
                 ftl.process(dataModel, sbWriter);
             } catch (TemplateException e) {
@@ -181,22 +180,29 @@ public class ServerCheckManager {
     }
 
     private void dispatch() {
-        if(serverCheckWorkers == null) {
-            serverCheckWorkers = new ArrayList<Thread>(serverNode.getNodes().size());
+        if (this.serverCheckWorkers == null) {
+            this.serverCheckWorkers = new ArrayList<Thread>();
         }
-        for (int i = 0; i < serverNode.getNodes().size(); i++) {
-            // 生成每个working的检查任务
-            InstanceNode instanceNode = serverNode.getNodes().get(i);
-            CheckingInstanceNode checkingInstanceNode = new CheckingInstanceNode();
-            checkingInstanceNode.setServerName(serverNode.getServerName());
-            BeanUtils.copyProperties(instanceNode, checkingInstanceNode);
-            BeanUtils.copyProperties(serverNode.getHkConf(), checkingInstanceNode);
-            checkingInstanceNode.setVhostConfTplFilePath(serverNode.getVhostConfTplFilePath());
+        val entrySetIterator = serverNode.getGroups().entrySet().iterator();
+        while (entrySetIterator.hasNext()) {
+            val entry = entrySetIterator.next();
+            String groupName = entry.getKey();
+            InstanceNodeGroup instanceNodeGroup = entry.getValue();
+            for (int j = 0; j < instanceNodeGroup.getNodes().size(); j++) {
+                val instanceNode = instanceNodeGroup.getNodes().get(j);
+                // 生成每个working的检查任务
+                CheckingInstanceNode checkingInstanceNode = new CheckingInstanceNode();
+                checkingInstanceNode.setServerName(serverNode.getServerName());
+                BeanUtils.copyProperties(instanceNode, checkingInstanceNode);
+                BeanUtils.copyProperties(instanceNodeGroup.getHkConf(), checkingInstanceNode);
+                checkingInstanceNode.setVhostConfTplFilePath(serverNode.getVhostConfTplFilePath());
 
-            CheckTask checkTask = new CheckTask(this, checkingInstanceNode);
-            Thread worker = new Thread(checkTask, serverNode.getServerName() + "-hkRobot-" + i);
-            worker.setDaemon(true);
-            serverCheckWorkers.add(worker);
+                CheckTask checkTask = new CheckTask(this, groupName, checkingInstanceNode);
+                String workerName = String.format("%s-%s-hcWorker-%d", serverNode.getServerName(), groupName, j);
+                Thread worker = new Thread(checkTask, workerName);
+                worker.setDaemon(true);
+                serverCheckWorkers.add(worker);
+            }
         }
         for (Thread worker : serverCheckWorkers) {
             worker.start();

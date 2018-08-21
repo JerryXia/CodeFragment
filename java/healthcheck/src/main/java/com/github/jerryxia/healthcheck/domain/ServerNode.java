@@ -3,14 +3,13 @@
  */
 package com.github.jerryxia.healthcheck.domain;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 import lombok.Data;
 
 @Data
 public class ServerNode {
     private String serverName;
-    private ArrayList<InstanceNode> nodes;
-    private HealthCheckConf hkConf;
+    private HashMap<String, InstanceNodeGroup> groups;
     private String vhostConfTplFilePath;
 }
