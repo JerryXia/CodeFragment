@@ -94,7 +94,31 @@ body {
     height: 30px;
     line-height: 30px;
     padding-left: 22px;
-    color: #9facba
+    color: #9facba;
+    transition: color .2s;
+    cursor: pointer;
+}
+.aside_dt:hover {
+    color: #666;
+}
+.aside_dt:after {
+    content: '';
+    position: absolute;
+    border: 5px solid transparent;
+    border-top-color: currentColor;
+    margin: 10px 0 0 8px;
+    transform: rotate(-90deg);
+}
+.aside_dt[open]:after {
+    transform: rotate(0);
+    margin-top: 13px;
+    margin-left: 5px;
+}
+.aside_dd {
+    display: none;
+}
+.aside_dt[open] ~ .aside_dd {
+    display: block;
 }
 
 .aside_nav {

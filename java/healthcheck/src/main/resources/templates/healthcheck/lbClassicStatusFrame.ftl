@@ -11,7 +11,7 @@
         <div class="section_main">
             <div class="section_auto">
                 <div class="mt30">
-                    <iframe src="/healthcheck/lbClassicStatus" style="border:0px;width:100%;height:666px;"></iframe>
+                    <iframe src="/healthcheck/lbClassicStatus" style="border:0px;width:100%;"></iframe>
                 </div>
             </div>
         </div>
@@ -19,4 +19,8 @@
 </div>
 
 <#include "../commonScripts.ftl">
+<script>
+console.info(window.innerHeight);
+$('iframe').css({ height: '' + (window.innerHeight - 100) + 'px' });
+</script>
 <#include "../footer.ftl">
