@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
+import org.apache.http.StatusLine;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -41,19 +42,19 @@ public final class HttpHelper {
 
     public static String simpleGet(String uri, Map<String, String> params) throws URISyntaxException {
         HttpGet httpGet = buildSimpleGet(uri, params, DEFAULT_REQUEST_CONFIG);
-        String responseString = executeRequest(httpGet);
+        String responseString = simpleExecuteRequest(httpGet);
         return responseString;
     }
 
     public static String simpleFormPost(String uri, Map<String, String> params) {
         HttpPost httpPost = buildSimpleFormPost(uri, params, DEFAULT_REQUEST_CONFIG);
-        String responseString = executeRequest(httpPost);
+        String responseString = simpleExecuteRequest(httpPost);
         return responseString;
     }
 
     public static String simpleJsonPost(String uri, String jsonStr) {
         HttpPost httpPost = buildSimpleJsonPost(uri, jsonStr, DEFAULT_REQUEST_CONFIG);
-        String responseString = executeRequest(httpPost);
+        String responseString = simpleExecuteRequest(httpPost);
         return responseString;
     }
 
@@ -106,24 +107,28 @@ public final class HttpHelper {
         return httpPost;
     }
 
-    public static String executeRequest(HttpUriRequest request) {
-        String responseString = null;
+    public static String simpleExecuteRequest(HttpUriRequest request) {
+        CopiedHttpResponse copiedHttpResponse = executeRequest(request);
+        return copiedHttpResponse.getBody();
+    }
+
+    public static CopiedHttpResponse executeRequest(HttpUriRequest request) {
+        CopiedHttpResponse copiedHttpResponse = null;
         CloseableHttpClient httpclient = HttpClients.createDefault();
         CloseableHttpResponse httpResponse = null;
         try {
             httpResponse = httpclient.execute(request);
-            // StatusLine statusLine = httpResponse.getStatusLine();
+            StatusLine statusLine = httpResponse.getStatusLine();
             HttpEntity entity = httpResponse.getEntity();
-            if (entity != null) {
-                responseString = EntityUtils.toString(entity, Consts.UTF_8);
-            }
+            String responseBodyString = EntityUtils.toString(entity, Consts.UTF_8);
+            copiedHttpResponse = new CopiedHttpResponse(statusLine, httpResponse.getAllHeaders(), responseBodyString);
         } catch (IOException e) {
-            log.error("HttpHelper.executeRequest() IOException", e);
+            log.error("HttpHelper.executeRequest() io error", e);
         } finally {
             HttpClientUtils.closeQuietly(httpResponse);
             HttpClientUtils.closeQuietly(httpclient);
         }
-        return responseString;
+        return copiedHttpResponse;
     }
 
     public static RequestConfig buildDefaultRequestConfig() {
