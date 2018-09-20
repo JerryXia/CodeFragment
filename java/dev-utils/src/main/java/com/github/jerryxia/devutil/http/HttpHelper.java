@@ -108,12 +108,12 @@ public final class HttpHelper {
     }
 
     public static String simpleExecuteRequest(HttpUriRequest request) {
-        CopiedHttpResponse copiedHttpResponse = executeRequest(request);
+        CopiedTextHttpResponse copiedHttpResponse = expectedTextExecuteRequest(request);
         return copiedHttpResponse.getBody();
     }
 
-    public static CopiedHttpResponse executeRequest(HttpUriRequest request) {
-        CopiedHttpResponse copiedHttpResponse = null;
+    public static CopiedTextHttpResponse expectedTextExecuteRequest(HttpUriRequest request) {
+        CopiedTextHttpResponse copiedHttpResponse = null;
         CloseableHttpClient httpclient = HttpClients.createDefault();
         CloseableHttpResponse httpResponse = null;
         try {
@@ -121,7 +121,26 @@ public final class HttpHelper {
             StatusLine statusLine = httpResponse.getStatusLine();
             HttpEntity entity = httpResponse.getEntity();
             String responseBodyString = EntityUtils.toString(entity, Consts.UTF_8);
-            copiedHttpResponse = new CopiedHttpResponse(statusLine, httpResponse.getAllHeaders(), responseBodyString);
+            copiedHttpResponse = new CopiedTextHttpResponse(statusLine, httpResponse.getAllHeaders(), responseBodyString);
+        } catch (IOException e) {
+            log.error("HttpHelper.executeRequest() io error", e);
+        } finally {
+            HttpClientUtils.closeQuietly(httpResponse);
+            HttpClientUtils.closeQuietly(httpclient);
+        }
+        return copiedHttpResponse;
+    }
+
+    public static CopiedByteHttpResponse expectedBytesExecuteRequest(HttpUriRequest request) {
+        CopiedByteHttpResponse copiedHttpResponse = null;
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        CloseableHttpResponse httpResponse = null;
+        try {
+            httpResponse = httpclient.execute(request);
+            StatusLine statusLine = httpResponse.getStatusLine();
+            HttpEntity entity = httpResponse.getEntity();
+            byte[] responseBytes = EntityUtils.toByteArray(entity);
+            copiedHttpResponse = new CopiedByteHttpResponse(statusLine, httpResponse.getAllHeaders(), responseBytes);
         } catch (IOException e) {
             log.error("HttpHelper.executeRequest() io error", e);
         } finally {
