@@ -17,6 +17,7 @@ import org.springframework.util.Assert;
 import org.springside.modules.utils.io.FileUtil;
 import org.springside.modules.utils.io.type.StringBuilderWriter;
 import org.springside.modules.utils.mapper.JsonMapper;
+import org.springside.modules.utils.text.Charsets;
 
 import com.github.jerryxia.healthcheck.common.Const;
 import com.github.jerryxia.healthcheck.util.RecordLogViewStatusMessagesServlet;
@@ -103,7 +104,7 @@ public class ServerCheckManager {
         } else {
             String confFileName = String.format("/etc/nginx/conf.d/%s.conf", this.serverNode.getServerName());
             try {
-                FileUtils.writeStringToFile(new File(confFileName), newNginxConf);
+                FileUtils.writeStringToFile(new File(confFileName), newNginxConf, Charsets.UTF_8);
                 doubleInfo(String.format("生成新的%s", confFileName));
             } catch (IOException e) {
                 log.error("FileUtils.writeStringToFile error", e);

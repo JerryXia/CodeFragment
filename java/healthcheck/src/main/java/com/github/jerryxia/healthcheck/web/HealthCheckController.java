@@ -21,7 +21,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springside.modules.utils.io.FileUtil;
 import org.springside.modules.utils.mapper.JsonMapper;
 
-import com.github.jerryxia.devutil.dataobject.web.response.GeneralResponse;
+import com.github.jerryxia.devutil.dataobject.web.response.SimpleRes;
 import com.github.jerryxia.healthcheck.common.Const;
 import com.github.jerryxia.healthcheck.domain.InstanceNodeGroup;
 import com.github.jerryxia.healthcheck.domain.ServerCheckFactory;
@@ -73,7 +73,8 @@ public class HealthCheckController extends BaseController {
         try {
             String confContent = FileUtil.toString(Const.CONF_SERVER_NODES_FILE);
             serverNodes = JsonMapper.INSTANCE.fromJson(confContent, Const.ServerNodeArrayListType);
-            prettyContent = JsonMapper.INSTANCE.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(serverNodes);
+            //prettyContent = JsonMapper.INSTANCE.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(serverNodes);
+            prettyContent = confContent;
         } catch (IOException e) {
             log.error("serverNodes.json read fail", e);
         }
@@ -81,17 +82,14 @@ public class HealthCheckController extends BaseController {
         mv.addObject("prettyServerNodeConfContent", prettyContent);
 
         mv.addObject("menuKey", 1);
-        mv.addObject("title", "应用节点清单");
-        mv.addObject("keywords", "");
-        mv.addObject("description", "");
-
+        tkd(mv, "应用节点清单", null, null);
         return mv;
     }
 
     @ResponseBody
     @PostMapping("/healthcheck/appNodesSave")
-    public GeneralResponse appNodesSave(String content) {
-        val response = okResponse();
+    public SimpleRes appNodesSave(String content) {
+        val response = new SimpleRes();
 
         ArrayList<ServerNode> serverNodes = JsonMapper.INSTANCE.fromJson(content, Const.ServerNodeArrayListType);
         if (serverNodes != null) {
@@ -99,10 +97,10 @@ public class HealthCheckController extends BaseController {
             try {
                 FileUtil.write(savingJsonContent, Const.CONF_SERVER_NODES_FILE);
             } catch (IOException e) {
-                failResponse(response, "保存失败");
+                response.failWithMsg("保存失败");
             }
         } else {
-            failResponse(response, "json格式不正确");
+            response.failWithMsg("json格式不正确");
         }
         return response;
     }
@@ -146,10 +144,7 @@ public class HealthCheckController extends BaseController {
         mv.addObject("serverNodes", serverNodes);
 
         mv.addObject("menuKey", 2);
-        mv.addObject("title", "应用设置");
-        mv.addObject("keywords", "");
-        mv.addObject("description", "");
-
+        tkd(mv, "应用设置", null, null);
         return mv;
     }
 
@@ -159,27 +154,23 @@ public class HealthCheckController extends BaseController {
 
         mv.addObject("managers", ServerCheckFactory.MANAGERS);
 
-        mv.addObject("menuKey", 3);
-        mv.addObject("title", "检测Robot");
-        mv.addObject("keywords", "");
-        mv.addObject("description", "");
+        mv.addObject("menuKey", 11);
+        tkd(mv, "检测Robots", null, null);
         return mv;
     }
 
     @GetMapping("/healthcheck/lbClassicStatusFrame")
     public ModelAndView lbClassicStatusFrame() {
         ModelAndView mv = new ModelAndView("healthcheck/lbClassicStatusFrame");
-        mv.addObject("menuKey", 4);
-        mv.addObject("title", "日志记录");
-        mv.addObject("keywords", "");
-        mv.addObject("description", "");
+        mv.addObject("menuKey", 12);
+        tkd(mv, "日志记录", null, null);
         return mv;
     }
 
     @ResponseBody
     @PostMapping("/healthcheck/refreshServerNodes")
-    public GeneralResponse refreshServerNodes() {
-        val response = okResponse();
+    public SimpleRes refreshServerNodes() {
+        val response = new SimpleRes();
         RecordLogViewStatusMessagesServlet.info("手动刷新配置......", this);
         ArrayList<ServerNode> serverNodes = null;
         try {
@@ -191,7 +182,7 @@ public class HealthCheckController extends BaseController {
         if (serverNodes != null) {
             ServerCheckFactory.dispatch(serverNodes);
         } else {
-            failResponse(response, "serverNodes读取异常");
+            response.failWithMsg("serverNodes读取异常");
         }
         return response;
     }
