@@ -58,6 +58,7 @@ public class CheckTask implements Runnable {
         try {
             String uri = String.format("http://%s:%d%s?%s=%d", node.getIp(), node.getPort(), node.getPath(), node.getQueryWithTimestampParamName(), System.currentTimeMillis());
             HttpGet httpget = new HttpGet(uri);
+            httpget.setHeader("Host", node.getServerName());
             httpget.setHeader("User-Agent", "HealthChecker");
             if (StringUtils.isNotBlank(node.getCookie())) {
                 httpget.addHeader("Cookie", node.getCookie());
