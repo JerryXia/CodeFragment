@@ -14,10 +14,10 @@
                     <table class="ui-table">
                         <thead>
                             <tr>
-                              <th scope="col">Server-Manager</th>
-                              <th scope="col">状态</th>
+                              <th scope="col" width="140">Server-Manager</th>
+                              <th scope="col" width="100">状态</th>
                               <th scope="col">Worker</th>
-                              <th scope="col">状态</th>
+                              <th scope="col" width="100">状态</th>
                             </tr>
                         </thead>
                         <tbody>
