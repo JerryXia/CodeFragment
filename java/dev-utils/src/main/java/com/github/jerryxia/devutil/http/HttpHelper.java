@@ -109,7 +109,11 @@ public final class HttpHelper {
 
     public static String simpleExecuteRequest(HttpUriRequest request) {
         CopiedTextHttpResponse copiedHttpResponse = expectedTextExecuteRequest(request);
-        return copiedHttpResponse.getBody();
+        if(copiedHttpResponse == null) {
+            return null;
+        } else {
+            return copiedHttpResponse.getBody();
+        }
     }
 
     public static CopiedTextHttpResponse expectedTextExecuteRequest(HttpUriRequest request) {
