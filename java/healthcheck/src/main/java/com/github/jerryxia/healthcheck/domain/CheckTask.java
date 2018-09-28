@@ -15,6 +15,8 @@ import org.apache.http.client.utils.HttpClientUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
+import com.github.jerryxia.healthcheck.util.RecordLogViewStatusMessagesServlet;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -45,6 +47,7 @@ public class CheckTask implements Runnable {
         if (nowIsActive == this.active) {
             // ignore
         } else {
+            doubleInfo(String.format("active: %s, nowIsActive: %s", this.active, nowIsActive));
             this.active = nowIsActive;
             this.checkingInstanceNode.setActived(nowIsActive);
             this.checkingManager.receiveUpdateReport(this.groupName, this.checkingInstanceNode);
@@ -66,7 +69,7 @@ public class CheckTask implements Runnable {
             httpget.setConfig(REQUEST_CONFIG);
 
             httpResponse = httpclient.execute(httpget);
-            if (httpResponse.getStatusLine().getStatusCode() == 200) {
+            if (httpResponse.getStatusLine() != null && httpResponse.getStatusLine().getStatusCode() == 200) {
                 HttpEntity entity = httpResponse.getEntity();
                 if (entity != null) {
                     valid = true;
@@ -84,6 +87,11 @@ public class CheckTask implements Runnable {
             HttpClientUtils.closeQuietly(httpclient);
         }
         return valid;
+    }
+
+    private void doubleInfo(String msg) {
+        log.info(msg);
+        RecordLogViewStatusMessagesServlet.info(msg, this);
     }
 
     @Override
