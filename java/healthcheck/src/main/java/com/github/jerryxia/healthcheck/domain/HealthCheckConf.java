@@ -9,5 +9,5 @@ import lombok.Data;
 public class HealthCheckConf {
     private String path;
     private String queryWithTimestampParamName;
-    private String cookie;
+    private String header;
 }

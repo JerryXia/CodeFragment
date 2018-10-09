@@ -19,7 +19,7 @@ public class CheckingInstanceNode {
 
     private String path;
     private String queryWithTimestampParamName;
-    private String cookie;
+    private String header;
 
     private boolean actived;
 

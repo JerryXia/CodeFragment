@@ -38,10 +38,10 @@ label.left, span.left {
                             </div>
                         </div>
                         <div class="fix mt15">
-                            <label class="left f14" for="cookie">携带Cookie</label>
+                            <label class="left f14" for="header">携带Header</label>
                             <div class="ovh">
                                 <div class="ui-textarea-x" style="width:500px;">
-                                    <textarea id="cookie" maxlength="140" rows="5">${instanceNodeGroup.hkConf.cookie!""}</textarea>
+                                    <textarea id="header" maxlength="140" rows="5">${instanceNodeGroup.hkConf.header!""}</textarea>
                                     <div class="ui-textarea"></div>
                                 </div>
                             </div>
@@ -70,7 +70,7 @@ label.left, span.left {
                                   <th scope="col" width="140">upstream_group</th>
                                   <th scope="col" width="140">检测路径</th>
                                   <th scope="col" width="100">时间戳的参数名</th>
-                                  <th scope="col">携带Cookie</th>
+                                  <th scope="col">携带Header</th>
                                   <th scope="col" width="100">#</th>
                                 </tr>
                             </thead>
@@ -85,7 +85,7 @@ label.left, span.left {
                                                 <td>${groupKey!""}</td>
                                                 <td>${serverNode.groups[groupKey].hkConf.path!""}</td>
                                                 <td>${serverNode.groups[groupKey].hkConf.queryWithTimestampParamName!""}</td>
-                                                <td><div class="ell">${serverNode.groups[groupKey].hkConf.cookie!""}</div></td>
+                                                <td><div class="ell">${serverNode.groups[groupKey].hkConf.header!""}</div></td>
                                                 <td><a href="/healthcheck/serverHealthCheckConfig?s=${serverNode.serverName?html}&g=${groupKey?html}" class="ui-button ui-button-primary" role="button">编辑</a></td>
                                             </tr>
                                         </#list>
