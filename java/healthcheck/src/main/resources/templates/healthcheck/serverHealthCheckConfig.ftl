@@ -41,7 +41,7 @@ label.left, span.left {
                             <label class="left f14" for="header">携带Header</label>
                             <div class="ovh">
                                 <div class="ui-textarea-x" style="width:500px;">
-                                    <textarea id="header" maxlength="140" rows="5">${instanceNodeGroup.hkConf.header!""}</textarea>
+                                    <textarea id="header" name="header" maxlength="140" rows="5">${instanceNodeGroup.hkConf.header!""}</textarea>
                                     <div class="ui-textarea"></div>
                                 </div>
                             </div>
