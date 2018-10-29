@@ -20,7 +20,7 @@ import ch.qos.logback.core.status.StatusManager;
 public class RecordLogViewStatusMessagesServlet extends ch.qos.logback.access.ViewStatusMessagesServlet {
     private static final long serialVersionUID = 443878494348593337L;
 
-    public static StatusManager CURRENT_STATUS_MANAGER;
+    private static StatusManager CURRENT_STATUS_MANAGER;
 
     @Override
     protected StatusManager getStatusManager(HttpServletRequest req, HttpServletResponse resp) {

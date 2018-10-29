@@ -18,14 +18,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
+import org.springside.modules.utils.collection.CollectionUtil;
 import org.springside.modules.utils.io.FileUtil;
 import org.springside.modules.utils.mapper.JsonMapper;
 
 import com.github.jerryxia.devutil.dataobject.web.response.SimpleRes;
 import com.github.jerryxia.healthcheck.common.Const;
+import com.github.jerryxia.healthcheck.domain.ActuatorInstanceNode;
+import com.github.jerryxia.healthcheck.domain.InstanceNode;
 import com.github.jerryxia.healthcheck.domain.InstanceNodeGroup;
 import com.github.jerryxia.healthcheck.domain.ServerCheckFactory;
 import com.github.jerryxia.healthcheck.domain.ServerNode;
+import com.github.jerryxia.healthcheck.domain.SpringBootActuatorClient;
 import com.github.jerryxia.healthcheck.util.RecordLogViewStatusMessagesServlet;
 
 import lombok.val;
@@ -73,7 +77,8 @@ public class HealthCheckController extends BaseController {
         try {
             String confContent = FileUtil.toString(Const.CONF_SERVER_NODES_FILE);
             serverNodes = JsonMapper.INSTANCE.fromJson(confContent, Const.ServerNodeArrayListType);
-            //prettyContent = JsonMapper.INSTANCE.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(serverNodes);
+            // prettyContent =
+            // JsonMapper.INSTANCE.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(serverNodes);
             prettyContent = confContent;
         } catch (IOException e) {
             log.error("serverNodes.json read fail", e);
@@ -147,6 +152,148 @@ public class HealthCheckController extends BaseController {
         tkd(mv, "应用设置", null, null);
         return mv;
     }
+
+    @GetMapping("/healthcheck/springbootActuatorLogSetting")
+    public ModelAndView springbootActuatorLogSetting(@RequestParam(name = "s", defaultValue = "") String serverName, @RequestParam(name = "g", defaultValue = "") String groupName,
+            @RequestParam(name = "n", defaultValue = "") String instanceNode, @RequestParam(name = "sln", defaultValue = "") String searchedloggerName) {
+        ModelAndView mv = new ModelAndView("healthcheck/springbootActuatorLogSetting");
+
+        ArrayList<ServerNode> serverNodes = null;
+        try {
+            String confContent = FileUtil.toString(Const.CONF_SERVER_NODES_FILE);
+            serverNodes = JsonMapper.INSTANCE.fromJson(confContent, Const.ServerNodeArrayListType);
+        } catch (IOException e) {
+            log.error("serverNodes.json read fail", e);
+            serverNodes = new ArrayList<ServerNode>();
+        }
+        ArrayList<String> serverNames = new ArrayList<String>(serverNodes.size());
+        ArrayList<String> groupNames = new ArrayList<String>();
+        ArrayList<String> instanceNodeNames = new ArrayList<String>();
+        ServerNode selectedServerNode = null;
+        InstanceNodeGroup selectedInstanceNodeGroup = null;
+        InstanceNode selectedInstanceNode = null;
+        boolean hasReqServerName = false;
+        boolean hasReqGroupName = false;
+        boolean hasReqInstanceNode = false;
+        String loggersJsonContent = null;
+
+        if (CollectionUtil.isNotEmpty(serverNodes)) {
+            if (StringUtils.isNotEmpty(serverName)) {
+                val serverNodesIterator = serverNodes.iterator();
+                while (serverNodesIterator.hasNext()) {
+                    val serverNode = serverNodesIterator.next();
+                    serverNames.add(serverNode.getServerName());
+                    if (StringUtils.compare(serverNode.getServerName(), serverName) == 0) {
+                        hasReqServerName = true;
+                        selectedServerNode = serverNode;
+                        val groupEntrySetIterator = serverNode.getGroups().entrySet().iterator();
+                        while (groupEntrySetIterator.hasNext()) {
+                            val groupEntry = groupEntrySetIterator.next();
+                            groupNames.add(groupEntry.getKey());
+                        }
+                    }
+                }
+
+                if (hasReqServerName) {
+                    if (StringUtils.isNotEmpty(groupName)) {
+                        val groupNamesIterator = groupNames.iterator();
+                        while (groupNamesIterator.hasNext()) {
+                            if (StringUtils.compare(groupName, groupNamesIterator.next()) == 0) {
+                                hasReqGroupName = true;
+                                selectedInstanceNodeGroup = selectedServerNode.getGroups().get(groupName);
+                            }
+                        }
+
+                        if (hasReqGroupName && StringUtils.isNotEmpty(instanceNode)) {
+                            val instanceNodesIterator = selectedInstanceNodeGroup.getNodes().iterator();
+                            while (instanceNodesIterator.hasNext()) {
+                                val instanceNodeItem = instanceNodesIterator.next();
+                                String instanceNodeName = String.format("%s:%d", instanceNodeItem.getIp(), instanceNodeItem.getPort());
+                                instanceNodeNames.add(instanceNodeName);
+                                if (StringUtils.compare(instanceNode, instanceNodeName) == 0) {
+                                    hasReqInstanceNode = true;
+                                    selectedInstanceNode = instanceNodeItem;
+                                }
+                            }
+
+                            if (hasReqInstanceNode) {
+                                if(selectedInstanceNodeGroup.getMsConf() != null) {
+                                    val node = new ActuatorInstanceNode();
+                                    node.setServerName(serverName);
+                                    node.setIp(selectedInstanceNode.getIp());
+                                    node.setPort(selectedInstanceNode.getPort());
+                                    node.setQueryWithTimestampParamName(selectedInstanceNodeGroup.getMsConf().getQueryWithTimestampParamName());
+                                    node.setContextPath(selectedInstanceNodeGroup.getMsConf().getContextPath());
+                                    node.setHeader(selectedInstanceNodeGroup.getMsConf().getHeader());
+                                    loggersJsonContent = new SpringBootActuatorClient().getLoggers(node);
+                                } else {
+                                    return getMvRedirect("/healthcheck/appNodes", "msConf属性还未配置！");
+                                }
+                            } else {
+                                
+                            }
+                        } else {
+                            val instanceNodesIterator = selectedInstanceNodeGroup.getNodes().iterator();
+                            while (instanceNodesIterator.hasNext()) {
+                                val instanceNodeItem = instanceNodesIterator.next();
+                                String instanceNodeName = String.format("%s:%d", instanceNodeItem.getIp(), instanceNodeItem.getPort());
+                                instanceNodeNames.add(instanceNodeName);
+                            }
+                        }
+                    }
+                }
+            } else {
+                val serverNodesIterator = serverNodes.iterator();
+                while (serverNodesIterator.hasNext()) {
+                    val serverNode = serverNodesIterator.next();
+                    serverNames.add(serverNode.getServerName());
+                }
+            }
+        }
+
+        mv.addObject("serverNodes", serverNodes);
+        mv.addObject("serverNames", serverNames);
+        mv.addObject("groupNames", groupNames);
+        mv.addObject("instanceNodeNames", instanceNodeNames);
+
+        mv.addObject("s", serverName);
+        mv.addObject("g", groupName);
+        mv.addObject("n", instanceNode);
+        mv.addObject("sln", searchedloggerName);
+        mv.addObject("loggersJsonContent", loggersJsonContent);
+
+        mv.addObject("menuKey", 3);
+        tkd(mv, "SpringBoot-Actuator-Log设置", null, null);
+        return mv;
+    }
+
+    @ResponseBody
+    @PostMapping("/healthcheck/modifyLoggerLevel")
+    public SimpleRes modifyLoggerLevel(String serverName, String groupName, String ip, int port, String loggerName, String configuredLevel) {
+        val response = new SimpleRes();
+
+        ArrayList<ServerNode> serverNodes = null;
+        try {
+            String confContent = FileUtil.toString(Const.CONF_SERVER_NODES_FILE);
+            serverNodes = JsonMapper.INSTANCE.fromJson(confContent, Const.ServerNodeArrayListType);
+        } catch (IOException e) {
+            log.error("serverNodes.json read fail", e);
+            serverNodes = new ArrayList<ServerNode>();
+        }
+
+        ServerNode serverNode = serverNodes.stream().filter(q -> serverName.equals(q.getServerName())).findFirst().get();
+
+        val node = new ActuatorInstanceNode();
+        node.setServerName(serverName);
+        node.setIp(ip);
+        node.setPort(port);
+        node.setContextPath(serverNode.getGroups().get(groupName).getMsConf().getContextPath());
+        node.setHeader(serverNode.getGroups().get(groupName).getMsConf().getHeader());
+        String moidfyResult = new SpringBootActuatorClient().modifyLoggerLevel(node, loggerName, configuredLevel);
+        log.debug(moidfyResult);
+        return response;
+    }
+
 
     @GetMapping("/healthcheck/serverHkRobots")
     public ModelAndView serverHkRobots() {

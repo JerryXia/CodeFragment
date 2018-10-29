@@ -11,4 +11,5 @@ import lombok.Data;
 public class InstanceNodeGroup {
     private ArrayList<InstanceNode> nodes;
     private HealthCheckConf hkConf;
+    private ManagementServerConf msConf;
 }
