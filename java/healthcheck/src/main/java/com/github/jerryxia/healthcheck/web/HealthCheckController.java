@@ -316,9 +316,10 @@ public class HealthCheckController extends BaseController {
 
     @ResponseBody
     @PostMapping("/healthcheck/refreshServerNodes")
-    public SimpleRes refreshServerNodes() {
+    public SimpleRes refreshServerNodes(String serverNames) {
         val response = new SimpleRes();
-        RecordLogViewStatusMessagesServlet.info("手动刷新配置......", this);
+        RecordLogViewStatusMessagesServlet.info("手动刷新指定serverNames: " + JsonMapper.INSTANCE.toJson(serverNames), this);
+
         ArrayList<ServerNode> serverNodes = null;
         try {
             String confContent = FileUtil.toString(Const.CONF_SERVER_NODES_FILE);
@@ -327,9 +328,39 @@ public class HealthCheckController extends BaseController {
             log.error("serverNodes.json read fail", e);
         }
         if (serverNodes != null) {
-            ServerCheckFactory.dispatch(serverNodes);
+            String[] serverNameArray = StringUtils.split(serverNames, ',');
+            val needRefreshServerNodes = new ArrayList<ServerNode>(serverNameArray.length);
+            for(String serverName : serverNameArray) {
+                try {
+                    val serverNode = serverNodes.stream().filter(q -> serverName.equals(q.getServerName())).findFirst().get();
+                    needRefreshServerNodes.add(serverNode);
+                } catch(NullPointerException e) {
+                    
+                }
+            }
+            ServerCheckFactory.dispatch(needRefreshServerNodes);
         } else {
             response.failWithMsg("serverNodes读取异常");
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @PostMapping("/healthcheck/refreshServerNodeNginxConf")
+    public SimpleRes refreshServerNodeNginxConf(String serverNames) {
+        val response = new SimpleRes();
+        RecordLogViewStatusMessagesServlet.info("手动刷新nginx.conf: " + JsonMapper.INSTANCE.toJson(serverNames), this);
+
+        String[] serverNameArray = StringUtils.split(serverNames, ',');
+        for(String serverName : serverNameArray) {
+            val serverCheckManager = ServerCheckFactory.MANAGERS.get(serverName);
+            if(serverCheckManager != null) {
+                // 重新刷新配置文件
+                serverCheckManager.workForLoadBalance();
+                RecordLogViewStatusMessagesServlet.info(String.format("%s刷新OK", serverName), this);
+            } else {
+                RecordLogViewStatusMessagesServlet.error(String.format("%s刷新失败，不存在此serverName", serverName), this);
+            }
         }
         return response;
     }
