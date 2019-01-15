@@ -23,6 +23,7 @@
                                     <tr>
                                       <th scope="col">域名</th>
                                       <th scope="col">upstream_group</th>
+                                      <th scope="col">自动检查模式</th>
                                       <th scope="col">节点</th>
                                       <th scope="col">权重</th>
                                       <th scope="col">存活</th>
@@ -34,9 +35,19 @@
                                           <#list serverNode.groups?keys as groupKey>
                                             <#list serverNode.groups[groupKey].nodes as node>
                                                 <tr>
+                                                    <#assign autoHealthCheckModeId = "switch${serverNode.serverName}_${groupKey}" >
                                                     <#if node?index == 0>
                                                         <td rowspan="${serverNode.groups[groupKey].nodes?size}">${serverNode.serverName}</td>
                                                         <td rowspan="${serverNode.groups[groupKey].nodes?size}">${groupKey}</td>
+                                                        <td rowspan="${serverNode.groups[groupKey].nodes?size}">
+                                                          <#if serverNode.groups[groupKey].autoHealthCheckMode>
+                                                            <input type="checkbox" id="${autoHealthCheckModeId}" checked="checked" disabled="disabled"/>
+                                                            <label class="ui-switch" for="${autoHealthCheckModeId}"></label>
+                                                          <#else>
+                                                            <input type="checkbox" id="${autoHealthCheckModeId}" disabled="disabled"/>
+                                                            <label class="ui-switch" for="${autoHealthCheckModeId}"></label> 
+                                                          </#if>
+                                                        </td>
                                                     </#if>
                                                     <td>${node.ip}:${node.port?c}</td>
                                                     <td>${node.weight?c}</td>

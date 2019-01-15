@@ -20,6 +20,9 @@ import org.springside.modules.utils.mapper.JsonMapper;
 import org.springside.modules.utils.text.Charsets;
 
 import com.github.jerryxia.healthcheck.common.Const;
+import com.github.jerryxia.healthcheck.domain.conf.InstanceNode;
+import com.github.jerryxia.healthcheck.domain.conf.InstanceNodeGroup;
+import com.github.jerryxia.healthcheck.domain.conf.ServerNode;
 import com.github.jerryxia.healthcheck.util.RecordLogViewStatusMessagesServlet;
 
 import freemarker.core.ParseException;
@@ -78,7 +81,7 @@ public class ServerCheckManager {
         ArrayList<ServerNode> serverNodes = null;
         try {
             String confContent = FileUtil.toString(Const.CONF_SERVER_NODES_FILE);
-            serverNodes = JsonMapper.INSTANCE.fromJson(confContent, Const.ServerNodeArrayListType);
+            serverNodes = JsonMapper.INSTANCE.fromJson(confContent, Const.ARRAYLIST_SERVERNODE_TYPE);
             for (int i = 0; i < serverNodes.size(); i++) {
                 ServerNode curr = serverNodes.get(i);
                 if (this.serverNode.getServerName().equals(curr.getServerName())) {
@@ -184,25 +187,29 @@ public class ServerCheckManager {
         if (this.serverCheckWorkers == null) {
             this.serverCheckWorkers = new ArrayList<Thread>();
         }
-        val entrySetIterator = serverNode.getGroups().entrySet().iterator();
+        val entrySetIterator = this.serverNode.getGroups().entrySet().iterator();
         while (entrySetIterator.hasNext()) {
             val entry = entrySetIterator.next();
             String groupName = entry.getKey();
             InstanceNodeGroup instanceNodeGroup = entry.getValue();
-            for (int j = 0; j < instanceNodeGroup.getNodes().size(); j++) {
-                val instanceNode = instanceNodeGroup.getNodes().get(j);
-                // 生成每个working的检查任务
-                CheckingInstanceNode checkingInstanceNode = new CheckingInstanceNode();
-                checkingInstanceNode.setServerName(serverNode.getServerName());
-                BeanUtils.copyProperties(instanceNode, checkingInstanceNode);
-                BeanUtils.copyProperties(instanceNodeGroup.getHkConf(), checkingInstanceNode);
-                checkingInstanceNode.setVhostConfTplFilePath(serverNode.getVhostConfTplFilePath());
+            if(instanceNodeGroup.isAutoHealthCheckMode()) {
+                for (int j = 0; j < instanceNodeGroup.getNodes().size(); j++) {
+                    InstanceNode instanceNode = instanceNodeGroup.getNodes().get(j);
+                    // 生成每个working的检查任务
+                    CheckingInstanceNode checkingInstanceNode = new CheckingInstanceNode();
+                    BeanUtils.copyProperties(instanceNode, checkingInstanceNode);
+                    BeanUtils.copyProperties(instanceNodeGroup.getHkConf(), checkingInstanceNode);
+                    checkingInstanceNode.setServerName(this.serverNode.getServerName());
+                    checkingInstanceNode.setVhostConfTplFilePath(this.serverNode.getVhostConfTplFilePath());
 
-                CheckTask checkTask = new CheckTask(this, groupName, checkingInstanceNode);
-                String workerName = String.format("%s-%s-hcWorker-%d", serverNode.getServerName(), groupName, j);
-                Thread worker = new Thread(checkTask, workerName);
-                worker.setDaemon(true);
-                serverCheckWorkers.add(worker);
+                    CheckTask checkTask = new CheckTask(this, groupName, checkingInstanceNode);
+                    String workerName = String.format("%s-%s-hcWorker-%d", serverNode.getServerName(), groupName, j);
+                    Thread worker = new Thread(checkTask, workerName);
+                    worker.setDaemon(true);
+                    serverCheckWorkers.add(worker);
+                }
+            } else {
+                doubleInfo(String.format("当前instanceNodeGroup: %s处于非自动检查模式", groupName));
             }
         }
         for (Thread worker : serverCheckWorkers) {

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.github.jerryxia.healthcheck.domain;
+package com.github.jerryxia.healthcheck.domain.conf;
 
 import java.util.ArrayList;
 
@@ -12,4 +12,5 @@ public class InstanceNodeGroup {
     private ArrayList<InstanceNode> nodes;
     private HealthCheckConf hkConf;
     private ManagementServerConf msConf;
+    private boolean autoHealthCheckMode;
 }

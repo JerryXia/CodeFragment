@@ -19,17 +19,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springside.modules.utils.collection.CollectionUtil;
+import org.springside.modules.utils.io.FilePathUtil;
 import org.springside.modules.utils.io.FileUtil;
 import org.springside.modules.utils.mapper.JsonMapper;
 
 import com.github.jerryxia.devutil.dataobject.web.response.SimpleRes;
 import com.github.jerryxia.healthcheck.common.Const;
 import com.github.jerryxia.healthcheck.domain.ActuatorInstanceNode;
-import com.github.jerryxia.healthcheck.domain.InstanceNode;
-import com.github.jerryxia.healthcheck.domain.InstanceNodeGroup;
 import com.github.jerryxia.healthcheck.domain.ServerCheckFactory;
-import com.github.jerryxia.healthcheck.domain.ServerNode;
 import com.github.jerryxia.healthcheck.domain.SpringBootActuatorClient;
+import com.github.jerryxia.healthcheck.domain.conf.InstanceNode;
+import com.github.jerryxia.healthcheck.domain.conf.InstanceNodeGroup;
+import com.github.jerryxia.healthcheck.domain.conf.ServerNode;
 import com.github.jerryxia.healthcheck.util.RecordLogViewStatusMessagesServlet;
 
 import lombok.val;
@@ -47,12 +48,11 @@ public class HealthCheckController extends BaseController {
     public void init() throws IOException {
         CONF_DIR = env.getProperty("app.conf.dir");
         Const.FTL_Configuration.setDirectoryForTemplateLoading(new File(CONF_DIR));
-        Const.CONF_SERVER_NODES_FILE = new File(CONF_DIR + "/serverNodes.json");
-        initFile(Const.CONF_SERVER_NODES_FILE, "[]");
-        Const.ServerNodeArrayListType = JsonMapper.INSTANCE.buildCollectionType(ArrayList.class, ServerNode.class);
+        Const.CONF_SERVER_NODES_FILE = new File(FilePathUtil.contact(CONF_DIR, "serverNodes.json"));
+        initFileIfNotExists(Const.CONF_SERVER_NODES_FILE, "[]");
     }
 
-    private void initFile(File file, String content) {
+    private void initFileIfNotExists(File file, String content) {
         if (!FileUtil.isFileExists(file)) {
             try {
                 FileUtil.touch(file);
@@ -73,18 +73,17 @@ public class HealthCheckController extends BaseController {
         ModelAndView mv = new ModelAndView("healthcheck/appnodes");
 
         ArrayList<ServerNode> serverNodes = null;
-        String prettyContent = null;
+        String confContent = null;
         try {
-            String confContent = FileUtil.toString(Const.CONF_SERVER_NODES_FILE);
-            serverNodes = JsonMapper.INSTANCE.fromJson(confContent, Const.ServerNodeArrayListType);
-            // prettyContent =
+            confContent = FileUtil.toString(Const.CONF_SERVER_NODES_FILE);
+            serverNodes = JsonMapper.INSTANCE.fromJson(confContent, Const.ARRAYLIST_SERVERNODE_TYPE);
+            // if pretty confContent
             // JsonMapper.INSTANCE.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(serverNodes);
-            prettyContent = confContent;
         } catch (IOException e) {
             log.error("serverNodes.json read fail", e);
         }
         mv.addObject("serverNodes", serverNodes);
-        mv.addObject("prettyServerNodeConfContent", prettyContent);
+        mv.addObject("prettyServerNodeConfContent", confContent);
 
         mv.addObject("menuKey", 1);
         tkd(mv, "应用节点清单", null, null);
@@ -96,7 +95,7 @@ public class HealthCheckController extends BaseController {
     public SimpleRes appNodesSave(String content) {
         val response = new SimpleRes();
 
-        ArrayList<ServerNode> serverNodes = JsonMapper.INSTANCE.fromJson(content, Const.ServerNodeArrayListType);
+        ArrayList<ServerNode> serverNodes = JsonMapper.INSTANCE.fromJson(content, Const.ARRAYLIST_SERVERNODE_TYPE);
         if (serverNodes != null) {
             String savingJsonContent = JsonMapper.INSTANCE.toJson(serverNodes);
             try {
@@ -111,13 +110,14 @@ public class HealthCheckController extends BaseController {
     }
 
     @GetMapping("/healthcheck/serverHealthCheckConfig")
-    public ModelAndView serverHealthCheckConfig(@RequestParam(name = "s", defaultValue = "") String serverName, @RequestParam(name = "g", defaultValue = "") String groupName) {
+    public ModelAndView serverHealthCheckConfig(@RequestParam(name = "s", defaultValue = "") String serverName,
+            @RequestParam(name = "g", defaultValue = "") String groupName) {
         ModelAndView mv = new ModelAndView("healthcheck/serverHealthCheckConfig");
 
         ArrayList<ServerNode> serverNodes = null;
         try {
             String confContent = FileUtil.toString(Const.CONF_SERVER_NODES_FILE);
-            serverNodes = JsonMapper.INSTANCE.fromJson(confContent, Const.ServerNodeArrayListType);
+            serverNodes = JsonMapper.INSTANCE.fromJson(confContent, Const.ARRAYLIST_SERVERNODE_TYPE);
         } catch (IOException e) {
             log.error("serverNodes.json read fail", e);
         }
@@ -154,14 +154,16 @@ public class HealthCheckController extends BaseController {
     }
 
     @GetMapping("/healthcheck/springbootActuatorLogSetting")
-    public ModelAndView springbootActuatorLogSetting(@RequestParam(name = "s", defaultValue = "") String serverName, @RequestParam(name = "g", defaultValue = "") String groupName,
-            @RequestParam(name = "n", defaultValue = "") String instanceNode, @RequestParam(name = "sln", defaultValue = "") String searchedloggerName) {
+    public ModelAndView springbootActuatorLogSetting(@RequestParam(name = "s", defaultValue = "") String serverName,
+            @RequestParam(name = "g", defaultValue = "") String groupName,
+            @RequestParam(name = "n", defaultValue = "") String instanceNode,
+            @RequestParam(name = "sln", defaultValue = "") String searchedloggerName) {
         ModelAndView mv = new ModelAndView("healthcheck/springbootActuatorLogSetting");
 
         ArrayList<ServerNode> serverNodes = null;
         try {
             String confContent = FileUtil.toString(Const.CONF_SERVER_NODES_FILE);
-            serverNodes = JsonMapper.INSTANCE.fromJson(confContent, Const.ServerNodeArrayListType);
+            serverNodes = JsonMapper.INSTANCE.fromJson(confContent, Const.ARRAYLIST_SERVERNODE_TYPE);
         } catch (IOException e) {
             log.error("serverNodes.json read fail", e);
             serverNodes = new ArrayList<ServerNode>();
@@ -208,7 +210,8 @@ public class HealthCheckController extends BaseController {
                             val instanceNodesIterator = selectedInstanceNodeGroup.getNodes().iterator();
                             while (instanceNodesIterator.hasNext()) {
                                 val instanceNodeItem = instanceNodesIterator.next();
-                                String instanceNodeName = String.format("%s:%d", instanceNodeItem.getIp(), instanceNodeItem.getPort());
+                                String instanceNodeName = String.format("%s:%d", instanceNodeItem.getIp(),
+                                        instanceNodeItem.getPort());
                                 instanceNodeNames.add(instanceNodeName);
                                 if (StringUtils.compare(instanceNode, instanceNodeName) == 0) {
                                     hasReqInstanceNode = true;
@@ -217,12 +220,13 @@ public class HealthCheckController extends BaseController {
                             }
 
                             if (hasReqInstanceNode) {
-                                if(selectedInstanceNodeGroup.getMsConf() != null) {
+                                if (selectedInstanceNodeGroup.getMsConf() != null) {
                                     val node = new ActuatorInstanceNode();
                                     node.setServerName(serverName);
                                     node.setIp(selectedInstanceNode.getIp());
                                     node.setPort(selectedInstanceNode.getPort());
-                                    node.setQueryWithTimestampParamName(selectedInstanceNodeGroup.getMsConf().getQueryWithTimestampParamName());
+                                    node.setQueryWithTimestampParamName(
+                                            selectedInstanceNodeGroup.getMsConf().getQueryWithTimestampParamName());
                                     node.setContextPath(selectedInstanceNodeGroup.getMsConf().getContextPath());
                                     node.setHeader(selectedInstanceNodeGroup.getMsConf().getHeader());
                                     loggersJsonContent = new SpringBootActuatorClient().getLoggers(node);
@@ -230,13 +234,14 @@ public class HealthCheckController extends BaseController {
                                     return getMvRedirect("/healthcheck/appNodes", "msConf属性还未配置！");
                                 }
                             } else {
-                                
+
                             }
                         } else {
                             val instanceNodesIterator = selectedInstanceNodeGroup.getNodes().iterator();
                             while (instanceNodesIterator.hasNext()) {
                                 val instanceNodeItem = instanceNodesIterator.next();
-                                String instanceNodeName = String.format("%s:%d", instanceNodeItem.getIp(), instanceNodeItem.getPort());
+                                String instanceNodeName = String.format("%s:%d", instanceNodeItem.getIp(),
+                                        instanceNodeItem.getPort());
                                 instanceNodeNames.add(instanceNodeName);
                             }
                         }
@@ -269,19 +274,20 @@ public class HealthCheckController extends BaseController {
 
     @ResponseBody
     @PostMapping("/healthcheck/modifyLoggerLevel")
-    public SimpleRes modifyLoggerLevel(String serverName, String groupName, String ip, int port, String loggerName, String configuredLevel) {
+    public SimpleRes modifyLoggerLevel(String serverName, String groupName, String ip, int port, String loggerName,
+            String configuredLevel) {
         val response = new SimpleRes();
 
         ArrayList<ServerNode> serverNodes = null;
         try {
             String confContent = FileUtil.toString(Const.CONF_SERVER_NODES_FILE);
-            serverNodes = JsonMapper.INSTANCE.fromJson(confContent, Const.ServerNodeArrayListType);
+            serverNodes = JsonMapper.INSTANCE.fromJson(confContent, Const.ARRAYLIST_SERVERNODE_TYPE);
         } catch (IOException e) {
             log.error("serverNodes.json read fail", e);
             serverNodes = new ArrayList<ServerNode>();
         }
 
-        ServerNode serverNode = serverNodes.stream().filter(q -> serverName.equals(q.getServerName())).findFirst().get();
+        val serverNode = serverNodes.stream().filter(q -> serverName.equals(q.getServerName())).findFirst().get();
 
         val node = new ActuatorInstanceNode();
         node.setServerName(serverName);
@@ -293,7 +299,6 @@ public class HealthCheckController extends BaseController {
         log.debug(moidfyResult);
         return response;
     }
-
 
     @GetMapping("/healthcheck/serverHkRobots")
     public ModelAndView serverHkRobots() {
@@ -323,19 +328,20 @@ public class HealthCheckController extends BaseController {
         ArrayList<ServerNode> serverNodes = null;
         try {
             String confContent = FileUtil.toString(Const.CONF_SERVER_NODES_FILE);
-            serverNodes = JsonMapper.INSTANCE.fromJson(confContent, Const.ServerNodeArrayListType);
+            serverNodes = JsonMapper.INSTANCE.fromJson(confContent, Const.ARRAYLIST_SERVERNODE_TYPE);
         } catch (IOException e) {
             log.error("serverNodes.json read fail", e);
         }
         if (serverNodes != null) {
             String[] serverNameArray = StringUtils.split(serverNames, ',');
             val needRefreshServerNodes = new ArrayList<ServerNode>(serverNameArray.length);
-            for(String serverName : serverNameArray) {
+            for (String serverName : serverNameArray) {
                 try {
-                    val serverNode = serverNodes.stream().filter(q -> serverName.equals(q.getServerName())).findFirst().get();
+                    val serverNode = serverNodes.stream().filter(q -> serverName.equals(q.getServerName())).findFirst()
+                            .get();
                     needRefreshServerNodes.add(serverNode);
-                } catch(NullPointerException e) {
-                    
+                } catch (NullPointerException e) {
+
                 }
             }
             ServerCheckFactory.dispatch(needRefreshServerNodes);
@@ -352,9 +358,9 @@ public class HealthCheckController extends BaseController {
         RecordLogViewStatusMessagesServlet.info("手动刷新nginx.conf: " + JsonMapper.INSTANCE.toJson(serverNames), this);
 
         String[] serverNameArray = StringUtils.split(serverNames, ',');
-        for(String serverName : serverNameArray) {
+        for (String serverName : serverNameArray) {
             val serverCheckManager = ServerCheckFactory.MANAGERS.get(serverName);
-            if(serverCheckManager != null) {
+            if (serverCheckManager != null) {
                 // 重新刷新配置文件
                 serverCheckManager.workForLoadBalance();
                 RecordLogViewStatusMessagesServlet.info(String.format("%s刷新OK", serverName), this);

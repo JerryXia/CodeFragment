@@ -6,6 +6,7 @@ package com.github.jerryxia.healthcheck.domain;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.github.jerryxia.healthcheck.domain.conf.ServerNode;
 import com.github.jerryxia.healthcheck.util.RecordLogViewStatusMessagesServlet;
 
 import lombok.val;

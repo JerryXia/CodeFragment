@@ -28,7 +28,10 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class CheckTask implements Runnable {
-    private static final RequestConfig REQUEST_CONFIG         = RequestConfig.custom().setConnectionRequestTimeout(2000).setConnectTimeout(2000).setSocketTimeout(2000).build();
+    // IP无法链接，链接超时
+    private static final RequestConfig REQUEST_CONFIG         = RequestConfig.custom().setConnectTimeout(2 * 1000)
+            // 服务端没有指定时间内任何响应，会超时
+            .setSocketTimeout(10 * 1000).build();
     private static final long          DEFAULT_CHECK_INTERVAL = 1000;
 
     private final ServerCheckManager   checkingManager;
@@ -38,10 +41,10 @@ public class CheckTask implements Runnable {
     private boolean working = true;
     private boolean active;
 
-    public CheckTask(final ServerCheckManager manager, final String groupName, final CheckingInstanceNode checkingInstanceNode) {
+    public CheckTask(final ServerCheckManager manager, String groupName, final CheckingInstanceNode chkInstanceNode) {
         this.checkingManager = manager;
         this.groupName = groupName;
-        this.checkingInstanceNode = checkingInstanceNode;
+        this.checkingInstanceNode = chkInstanceNode;
         this.active = this.checkingInstanceNode.isActived();
     }
 
@@ -62,7 +65,8 @@ public class CheckTask implements Runnable {
         CloseableHttpClient httpclient = HttpClients.createMinimal();
         CloseableHttpResponse httpResponse = null;
         try {
-            String uri = String.format("http://%s:%d%s?%s=%d", node.getIp(), node.getPort(), node.getPath(), node.getQueryWithTimestampParamName(), SystemClock.now());
+            String uri = String.format("http://%s:%d%s?%s=%d", node.getIp(), node.getPort(), node.getPath(),
+                    node.getQueryWithTimestampParamName(), SystemClock.now());
             HttpGet httpget = new HttpGet(uri);
             httpget.setHeader(HttpHeaders.HOST, node.getServerName());
             httpget.setHeader(HttpHeaders.USER_AGENT, Const.DEFAULT_USER_AGENT);

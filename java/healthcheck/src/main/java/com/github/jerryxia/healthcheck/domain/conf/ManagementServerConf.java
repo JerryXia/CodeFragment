@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.github.jerryxia.healthcheck.domain;
+package com.github.jerryxia.healthcheck.domain.conf;
 
 import lombok.Data;
 
