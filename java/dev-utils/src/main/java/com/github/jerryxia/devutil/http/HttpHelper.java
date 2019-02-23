@@ -4,6 +4,7 @@
 package com.github.jerryxia.devutil.http;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -37,21 +38,49 @@ import org.slf4j.LoggerFactory;
 public final class HttpHelper {
     private static final Logger log = LoggerFactory.getLogger(HttpHelper.class);
 
-    public static final int           DEFAULT_TIMEOUT        = 20 * 1000;
-    public static final RequestConfig DEFAULT_REQUEST_CONFIG = buildDefaultRequestConfig();
+    private static final int          DEFAULT_TIMEOUT        = 20 * 1000;
+    public static final RequestConfig DEFAULT_REQUEST_CONFIG = defaultRequestConfigBuilder().build();
 
+    /**
+     * <p>简单Get请求，等价于：</p>
+     * <p>HttpGet httpGet = buildSimpleGet(uri, params, DEFAULT_REQUEST_CONFIG);<p>
+     * <p>return simpleExecuteRequest(httpPost);</p>
+     * 
+     * @param uri 指定的Uri
+     * @param params 可以为null
+     * @return
+     * @throws URISyntaxException
+     */
     public static String simpleGet(String uri, Map<String, String> params) throws URISyntaxException {
         HttpGet httpGet = buildSimpleGet(uri, params, DEFAULT_REQUEST_CONFIG);
         String responseString = simpleExecuteRequest(httpGet);
         return responseString;
     }
 
+    /**
+     * <p>表单提交请求，等价于：</p>
+     * <p>HttpPost httpPost = buildSimpleFormPost(uri, params, DEFAULT_REQUEST_CONFIG);<p>
+     * <p>return simpleExecuteRequest(httpPost);</p>
+     * 
+     * @param uri 指定的Uri
+     * @param params 可以为null
+     * @return
+     */
     public static String simpleFormPost(String uri, Map<String, String> params) {
         HttpPost httpPost = buildSimpleFormPost(uri, params, DEFAULT_REQUEST_CONFIG);
         String responseString = simpleExecuteRequest(httpPost);
         return responseString;
     }
 
+    /**
+     * <p>json payload提交请求，等价于：</p>
+     * <p>HttpPost httpPost = buildSimpleJsonPost(uri, jsonStr, DEFAULT_REQUEST_CONFIG);<p>
+     * <p>return simpleExecuteRequest(httpPost);</p>
+     * 
+     * @param uri 指定的Uri
+     * @param jsonStr 不能为null
+     * @return
+     */
     public static String simpleJsonPost(String uri, String jsonStr) {
         HttpPost httpPost = buildSimpleJsonPost(uri, jsonStr, DEFAULT_REQUEST_CONFIG);
         String responseString = simpleExecuteRequest(httpPost);
@@ -59,7 +88,7 @@ public final class HttpHelper {
     }
 
     public static HttpGet buildSimpleGet(String uri, Map<String, String> params, RequestConfig reqConfig) throws URISyntaxException {
-        URIBuilder uriBuilder = new URIBuilder(uri);
+        URIBuilder uriBuilder = new URIBuilder(URI.create(uri));
         if (params != null) {
             // uriBuilder.setParameters(basicNameValuePairs);
             Iterator<Map.Entry<String, String>> entryIterator = params.entrySet().iterator();
@@ -77,7 +106,7 @@ public final class HttpHelper {
         return httpGet;
     }
 
-    public static HttpPost buildSimpleFormPost(String uri, Map<String, String> params, RequestConfig reqConfig){
+    public static HttpPost buildSimpleFormPost(String uri, Map<String, String> params, RequestConfig reqConfig) {
         ArrayList<BasicNameValuePair> basicNameValuePairs = new ArrayList<BasicNameValuePair>();
         if (params != null) {
             Iterator<Map.Entry<String, String>> entryIterator = params.entrySet().iterator();
@@ -109,7 +138,7 @@ public final class HttpHelper {
 
     public static String simpleExecuteRequest(HttpUriRequest request) {
         CopiedTextHttpResponse copiedHttpResponse = expectedTextExecuteRequest(request);
-        if(copiedHttpResponse == null) {
+        if (copiedHttpResponse == null) {
             return null;
         } else {
             return copiedHttpResponse.getBody();
@@ -124,10 +153,10 @@ public final class HttpHelper {
             httpResponse = httpclient.execute(request);
             StatusLine statusLine = httpResponse.getStatusLine();
             HttpEntity entity = httpResponse.getEntity();
-            String responseBodyString = EntityUtils.toString(entity, Consts.UTF_8);
-            copiedHttpResponse = new CopiedTextHttpResponse(statusLine, httpResponse.getAllHeaders(), responseBodyString);
+            String responseString = EntityUtils.toString(entity, Consts.UTF_8);
+            copiedHttpResponse = new CopiedTextHttpResponse(statusLine, httpResponse.getAllHeaders(), responseString);
         } catch (IOException e) {
-            log.error("HttpHelper.executeRequest() io error", e);
+            log.error("HttpHelper.expectedTextExecuteRequest() io error", e);
         } finally {
             HttpClientUtils.closeQuietly(httpResponse);
             HttpClientUtils.closeQuietly(httpclient);
@@ -146,7 +175,7 @@ public final class HttpHelper {
             byte[] responseBytes = EntityUtils.toByteArray(entity);
             copiedHttpResponse = new CopiedByteHttpResponse(statusLine, httpResponse.getAllHeaders(), responseBytes);
         } catch (IOException e) {
-            log.error("HttpHelper.executeRequest() io error", e);
+            log.error("HttpHelper.expectedBytesExecuteRequest() io error", e);
         } finally {
             HttpClientUtils.closeQuietly(httpResponse);
             HttpClientUtils.closeQuietly(httpclient);
@@ -154,8 +183,7 @@ public final class HttpHelper {
         return copiedHttpResponse;
     }
 
-    public static RequestConfig buildDefaultRequestConfig() {
-        return RequestConfig.custom().setConnectTimeout(DEFAULT_TIMEOUT).setConnectionRequestTimeout(DEFAULT_TIMEOUT)
-                .setSocketTimeout(DEFAULT_TIMEOUT).build();
+    public static org.apache.http.client.config.RequestConfig.Builder defaultRequestConfigBuilder() {
+        return RequestConfig.custom().setConnectTimeout(DEFAULT_TIMEOUT).setSocketTimeout(DEFAULT_TIMEOUT);
     }
 }
