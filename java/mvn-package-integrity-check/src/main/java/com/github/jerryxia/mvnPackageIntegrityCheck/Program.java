@@ -28,7 +28,7 @@ public class Program {
         if (args.length == 1) {
             mode = "check".equalsIgnoreCase(args[0]) ? "check" : "clean";
         }
-
+ 
         String localRepositoryFilePath = StrSubstitutor.replaceSystemProperties(Const.LOCAL_REPOSITORY_FILE_PATH);
         scanMvnDir(localRepositoryFilePath);
     }

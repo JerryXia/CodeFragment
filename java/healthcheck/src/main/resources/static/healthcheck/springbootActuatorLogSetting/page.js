@@ -36,54 +36,57 @@ seajs.config(config).use(['common/ui/Select', 'common/ui/Tips', 'common/ui/Drop'
         return html;
     }
 
-    if(currSelectedLoggers.loggers['ROOT']) {
-        $('#ROOT').html(generateLoggerNameRowHtml('ROOT', currSelectedLoggers.loggers['ROOT'].effectiveLevel));
+    if(typeof currSelectedLoggers.loggers !== 'undefined') {
+        if(currSelectedLoggers.loggers['ROOT']) {
+            $('#ROOT').html(generateLoggerNameRowHtml('ROOT', currSelectedLoggers.loggers['ROOT'].effectiveLevel));
+        }
+        // child nodes
+        let loggerNamesTree = {};
+        for(let loggerName in currSelectedLoggers.loggers) {
+            if(loggerName && loggerName !== 'ROOT') {
+                let loggerNamePaths = loggerName.split('.');
+                let lastTreeNode = null;
+                for(let i = 0, len = loggerNamePaths.length; i < len; i++) {
+                    let loggerNamePrefix = loggerNamePaths.slice(0, i + 1).join('.');
+                    if(i === 0) {
+                        if(typeof loggerNamesTree[loggerNamePrefix] === 'undefined') {
+                            loggerNamesTree[loggerNamePrefix] = currSelectedLoggers.loggers[loggerNamePrefix];
+                        }
+                        if(typeof loggerNamesTree[loggerNamePrefix] !== 'undefined') {
+                            lastTreeNode = loggerNamesTree[loggerNamePrefix];
+                        }
+                    }
+                    if(i > 0 && lastTreeNode) {
+                        if(typeof currSelectedLoggers.loggers[loggerNamePrefix] !== 'undefined') {
+                            if(typeof lastTreeNode['children'] === 'undefined') {
+                                lastTreeNode['children'] = {};
+                            }
+                            lastTreeNode['children'][loggerNamePrefix] = currSelectedLoggers.loggers[loggerNamePrefix];
+                            lastTreeNode = lastTreeNode['children'][loggerNamePrefix];
+                        }
+                    }
+                }
+            }
+        }
+        console.log(loggerNamesTree);
+
+        let loggersHtml = '';
+        let generateTree = function(node) {
+            loggersHtml += '<ul>';
+            for(let loggerName in node) {
+                loggersHtml += '<li>';
+                loggersHtml += generateLoggerNameRowHtml(loggerName, currSelectedLoggers.loggers[loggerName].effectiveLevel);
+                if(node[loggerName].children && JSON.stringify(node[loggerName].children) !== '{}') {
+                    generateTree(node[loggerName].children);
+                }
+                loggersHtml += '</li>';
+            }
+            loggersHtml += '</ul>';
+        }
+        generateTree(loggerNamesTree);
+        $('#ROOT').after(loggersHtml);
     }
 
-    // child nodes
-    let loggerNamesTree = {};
-    for(let loggerName in currSelectedLoggers.loggers) {
-        if(loggerName && loggerName !== 'ROOT') {
-            let loggerNamePaths = loggerName.split('.');
-            let lastTreeNode = null;
-            for(let i = 0, len = loggerNamePaths.length; i < len; i++) {
-                let loggerNamePrefix = loggerNamePaths.slice(0, i + 1).join('.');
-                if(i === 0) {
-                    if(typeof loggerNamesTree[loggerNamePrefix] === 'undefined') {
-                        loggerNamesTree[loggerNamePrefix] = currSelectedLoggers.loggers[loggerNamePrefix];
-                    }
-                    if(typeof loggerNamesTree[loggerNamePrefix] !== 'undefined') {
-                        lastTreeNode = loggerNamesTree[loggerNamePrefix];
-                    }
-                }
-                if(i > 0 && lastTreeNode) {
-                    if(typeof currSelectedLoggers.loggers[loggerNamePrefix] !== 'undefined') {
-                        if(typeof lastTreeNode['children'] === 'undefined') {
-                            lastTreeNode['children'] = {};
-                        }
-                        lastTreeNode['children'][loggerNamePrefix] = currSelectedLoggers.loggers[loggerNamePrefix];
-                        lastTreeNode = lastTreeNode['children'][loggerNamePrefix];
-                    }
-                }
-            }
-        }
-    }
-    console.log(loggerNamesTree);
-    let loggersHtml = '';
-    let generateTree = function(node) {
-        loggersHtml += '<ul>';
-        for(let loggerName in node) {
-            loggersHtml += '<li>';
-            loggersHtml += generateLoggerNameRowHtml(loggerName, currSelectedLoggers.loggers[loggerName].effectiveLevel);
-            if(node[loggerName].children && JSON.stringify(node[loggerName].children) !== '{}') {
-                generateTree(node[loggerName].children);
-            }
-            loggersHtml += '</li>';
-        }
-        loggersHtml += '</ul>';
-    }
-    generateTree(loggerNamesTree);
-    $('#ROOT').after(loggersHtml);
 
     let currLoggerName = null;
     $('span.logger').each(function(i, v) {
