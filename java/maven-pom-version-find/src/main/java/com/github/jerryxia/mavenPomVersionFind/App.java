@@ -27,22 +27,20 @@ public class App {
             File fabFile = new File(fabFilePath);
             String fabFileContent = FileUtil.toString(fabFile);
 
-            Matcher matches = Pattern.compile(projectDeployName + "-(.+).jar").matcher(fabFileContent);
-            for(int i = 1; i < matches.groupCount(); i++)
-            {
-                String oldVersion = matches.group(i);
-                fabFileContent = StringUtils.replace(fabFileContent, oldVersion, version);
+            Matcher matches = Pattern.compile(projectDeployName + "-(.+)\\.jar").matcher(fabFileContent);
+            if(matches.find()) {
+                String oldVersion = matches.group();
+                fabFileContent = StringUtils.replace(fabFileContent, oldVersion, String.format("%s-%s.jar", projectDeployName, version));
             }
             FileUtil.write(fabFileContent, fabFile);
 
             String serviceFilePath = FilePathUtil.contact(buildShellDir, projectDeployName + "_service");
             File serviceFile = new File(serviceFilePath);
             String serviceFileContent = FileUtil.toString(serviceFile);
-            Matcher serviceFileMatches = Pattern.compile(projectDeployName + "-(.+).jar").matcher(serviceFileContent);
-            for (int i = 1; i < serviceFileMatches.groupCount(); i++)
-            {
-                String oldVersion = serviceFileMatches.group(i);
-                serviceFileContent = StringUtils.replace(serviceFileContent, oldVersion, version);
+            Matcher serviceFileMatches = Pattern.compile(projectDeployName + "-(.+)\\.jar").matcher(serviceFileContent);
+            if(serviceFileMatches.find()) {
+                String oldVersion = serviceFileMatches.group();
+                serviceFileContent = StringUtils.replace(serviceFileContent, oldVersion, String.format("%s-%s.jar", projectDeployName, version));
             }
             FileUtil.write(serviceFileContent, serviceFile);
 
