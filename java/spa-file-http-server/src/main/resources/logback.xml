@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+scan：设置为true时，配置文件如果发生改变，将会被重新加载，默认值为true
+scanPeriod:设置监测配置文件是否有修改的时间间隔，如果没有给出时间单位，默认单位是毫秒。当scan为true时，此属性生效。默认的时间间隔为1分钟。 
+debug:当此属性设置为true时，将打印出logback内部日志信息，实时查看logback运行状态。默认值为false。
+-->
+<configuration scan="false" scanPeriod="60 seconds" debug="false">
+    <property name="log_dir" value="/tmp" />
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss,SSS} [%thread] %-5level %logger{16} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log_dir}/app.log</file>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter> 
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log_dir}/app.log-%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+        <!-- 
+%logger     mainPackage.sub.sample.Bar  mainPackage.sub.sample.Bar
+%logger{0}  mainPackage.sub.sample.Bar  Bar
+%logger{5}  mainPackage.sub.sample.Bar  m.s.s.Bar
+%logger{10} mainPackage.sub.sample.Bar  m.s.s.Bar
+%logger{15} mainPackage.sub.sample.Bar  m.s.sample.Bar
+%logger{16} mainPackage.sub.sample.Bar  m.sub.sample.Bar
+%logger{26} mainPackage.sub.sample.Bar  mainPackage.sub.sample.Bar
+         -->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss,SSS} [%thread] %-5level %logger{16} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 从高到地低OFF、FATAL、ERROR、WARN、INFO、DEBUG、TRACE、ALL -->
+    <!-- 日志输出规则 根据当前ROOT 级别，日志输出时，级别高于root默认的级别时会输出 -->
+    <root level="ALL">
+        <appender-ref ref="STDOUT" />
+    </root>
+</configuration>

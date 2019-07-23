@@ -64,8 +64,8 @@ public class CompareUnits {
         for (Column column : sourceTable.getColumns().values()) {
             if (targetTable.getColumns().get(column.getName()) == null) {
                 // 如果对应的target没有这个字段,直接alter
-                String sql = "alter table " + target.getSchema() + "." + targetTable.getTableName() + " add " + column
-                        .getName() + " ";
+                String sql = "alter table `" + target.getSchema() + "`.`" + targetTable.getTableName() + "` add `" + column
+                        .getName() + "` ";
                 sql += column.getType() + " ";
                 if (column.getIsNull().equals("NO")) {
                     sql += "NOT NULL ";
@@ -79,14 +79,14 @@ public class CompareUnits {
                     sql += "COMMENT " + SqlUtil.getDbString(column.getComment()) + " ";
                 }
                 if (after != null) {
-                    sql += "after " + after;
+                    sql += "after `" + after + "`";
                 }
                 changeSql.add(sql+";");
             } else {
                 // 检查对应的source 和 target的属性
                 String sql =
-                        "alter table " + target.getSchema() + "." + targetTable.getTableName() + " change " + column
-                                .getName() + " ";
+                        "alter table `" + target.getSchema() + "`.`" + targetTable.getTableName() + "` change `" + column
+                                .getName() + "` ";
                 Column sourceColumn = column;
                 Column targetColumn = targetTable.getColumns().get(sourceColumn.getName());
                 // 比较两者字段,如果返回null,表明一致
@@ -102,8 +102,8 @@ public class CompareUnits {
         for (Column column : targetTable.getColumns().values()) {
             if (sourceTable.getColumns().get(column.getName()) == null) {
                 // redundancy , so drop it
-                String sql = "alter table " + target.getSchema() + "." + targetTable.getTableName() + " drop " + column
-                        .getName() + " ";
+                String sql = "alter table `" + target.getSchema() + "`.`" + targetTable.getTableName() + "` drop `" + column
+                        .getName() + "` ";
                 changeSql.add(sql+";");
             }
         }
@@ -150,7 +150,7 @@ public class CompareUnits {
 
     private void compareSingleKeys(Table sourceTable, Table targetTable) {
         for (Index index : sourceTable.getIndexes().values()) {
-            String sql = "alter table " + target.getSchema() + "." + targetTable.getTableName() + " ";
+            String sql = "alter table `" + target.getSchema() + "`.`" + targetTable.getTableName() + "` ";
             if (targetTable.getIndexes().get(index.getIndexName()) == null) {
                 if (index.getIndexName().equals("PRIMARY")) {
                     sql += "add primary key ";
@@ -173,7 +173,7 @@ public class CompareUnits {
         for (Index index : targetTable.getIndexes().values()) {
             if (sourceTable.getIndexes().get(index.getIndexName()) == null) {
                 // 表明此索引多余
-                String sql = "alter table " + target.getSchema() + "." + targetTable.getTableName() + " ";
+                String sql = "alter table `" + target.getSchema() + "`.`" + targetTable.getTableName() + "` ";
                 if (index.getIndexName().equals("PRIMARY")) {
                     sql += "drop primary key ";
                 } else {
