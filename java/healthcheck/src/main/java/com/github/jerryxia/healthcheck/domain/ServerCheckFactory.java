@@ -37,6 +37,7 @@ public class ServerCheckFactory {
                         MANAGERS.put(serverNode.getServerName(), serverCheckManager);
                     } else {
                         serverCheckManager.stop();
+                        serverCheckManager.setServerNode(serverNode);
                     }
                 }
             }
@@ -56,5 +57,4 @@ public class ServerCheckFactory {
             log.info("stop all exist ServerCheckManager");
         }
     }
-
 }

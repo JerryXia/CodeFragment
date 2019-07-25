@@ -35,16 +35,16 @@
                                           <#list serverNode.groups?keys as groupKey>
                                             <#list serverNode.groups[groupKey].nodes as node>
                                                 <tr>
-                                                    <#assign autoHealthCheckModeId = "switch${serverNode.serverName}_${groupKey}" >
+                                                    <#assign autoHealthCheckModeId = "ahc,${serverNode.serverName},${groupKey}" >
                                                     <#if node?index == 0>
                                                         <td rowspan="${serverNode.groups[groupKey].nodes?size}">${serverNode.serverName}</td>
                                                         <td rowspan="${serverNode.groups[groupKey].nodes?size}">${groupKey}</td>
                                                         <td rowspan="${serverNode.groups[groupKey].nodes?size}">
                                                           <#if serverNode.groups[groupKey].autoHealthCheckMode>
-                                                            <input type="checkbox" id="${autoHealthCheckModeId}" checked="checked" disabled="disabled"/>
+                                                            <input type="checkbox" id="${autoHealthCheckModeId}" checked="checked" />
                                                             <label class="ui-switch" for="${autoHealthCheckModeId}"></label>
                                                           <#else>
-                                                            <input type="checkbox" id="${autoHealthCheckModeId}" disabled="disabled"/>
+                                                            <input type="checkbox" id="${autoHealthCheckModeId}" />
                                                             <label class="ui-switch" for="${autoHealthCheckModeId}"></label> 
                                                           </#if>
                                                         </td>
@@ -52,12 +52,12 @@
                                                     <td>${node.ip}:${node.port?c}</td>
                                                     <td>${node.weight?c}</td>
                                                     <td>
-                                                        <#assign activeId = "switch${node.ip}_${node.port?c}" >
+                                                        <#assign activeId = "actived,${serverNode.serverName},${groupKey},${node.ip},${node.port?c}" >
                                                         <#if node.actived>
-                                                            <input type="checkbox" id="${activeId}" checked="checked" disabled="disabled"/>
+                                                            <input type="checkbox" id="${activeId}" checked="checked" <#if serverNode.groups[groupKey].autoHealthCheckMode>disabled="disabled"<#else></#if> />
                                                             <label class="ui-switch" for="${activeId}"></label>
                                                         <#else>
-                                                            <input type="checkbox" id="${activeId}" disabled="disabled"/>
+                                                            <input type="checkbox" id="${activeId}" <#if serverNode.groups[groupKey].autoHealthCheckMode>disabled="disabled"<#else></#if> />
                                                             <label class="ui-switch" for="${activeId}"></label> 
                                                         </#if>
                                                     </td>
@@ -72,6 +72,7 @@
                             </table>
                         </div>
                     </div>
+
                     <div id="tab1" class="ui-tab-content">
                         <div>
                             <form action="/healthcheck/appNodesSave" id="appNodesForm" method="post">
@@ -94,6 +95,7 @@
                             </form>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>

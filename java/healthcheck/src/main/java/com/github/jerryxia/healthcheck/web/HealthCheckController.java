@@ -42,13 +42,11 @@ public class HealthCheckController extends BaseController {
     @Autowired
     private Environment env;
 
-    private static String CONF_DIR;
-
     @PostConstruct
     public void init() throws IOException {
-        CONF_DIR = env.getProperty("app.conf.dir");
-        Const.FTL_Configuration.setDirectoryForTemplateLoading(new File(CONF_DIR));
-        Const.CONF_SERVER_NODES_FILE = new File(FilePathUtil.contact(CONF_DIR, "serverNodes.json"));
+        Const.CONF_DIR = env.getProperty("app.conf.dir");
+        Const.FTL_Configuration.setDirectoryForTemplateLoading(new File(Const.CONF_DIR));
+        Const.CONF_SERVER_NODES_FILE = new File(FilePathUtil.contact(Const.CONF_DIR, "serverNodes.json"));
         initFileIfNotExists(Const.CONF_SERVER_NODES_FILE, "[]");
     }
 
@@ -110,8 +108,7 @@ public class HealthCheckController extends BaseController {
     }
 
     @GetMapping("/healthcheck/serverHealthCheckConfig")
-    public ModelAndView serverHealthCheckConfig(@RequestParam(name = "s", defaultValue = "") String serverName,
-            @RequestParam(name = "g", defaultValue = "") String groupName) {
+    public ModelAndView serverHealthCheckConfig(@RequestParam(name = "s", defaultValue = "") String serverName, @RequestParam(name = "g", defaultValue = "") String groupName) {
         ModelAndView mv = new ModelAndView("healthcheck/serverHealthCheckConfig");
 
         ArrayList<ServerNode> serverNodes = null;
@@ -154,10 +151,8 @@ public class HealthCheckController extends BaseController {
     }
 
     @GetMapping("/healthcheck/springbootActuatorLogSetting")
-    public ModelAndView springbootActuatorLogSetting(@RequestParam(name = "s", defaultValue = "") String serverName,
-            @RequestParam(name = "g", defaultValue = "") String groupName,
-            @RequestParam(name = "n", defaultValue = "") String instanceNode,
-            @RequestParam(name = "sln", defaultValue = "") String searchedloggerName) {
+    public ModelAndView springbootActuatorLogSetting(@RequestParam(name = "s", defaultValue = "") String serverName, @RequestParam(name = "g", defaultValue = "") String groupName,
+            @RequestParam(name = "n", defaultValue = "") String instanceNode, @RequestParam(name = "sln", defaultValue = "") String searchedloggerName) {
         ModelAndView mv = new ModelAndView("healthcheck/springbootActuatorLogSetting");
 
         ArrayList<ServerNode> serverNodes = null;
@@ -210,8 +205,7 @@ public class HealthCheckController extends BaseController {
                             val instanceNodesIterator = selectedInstanceNodeGroup.getNodes().iterator();
                             while (instanceNodesIterator.hasNext()) {
                                 val instanceNodeItem = instanceNodesIterator.next();
-                                String instanceNodeName = String.format("%s:%d", instanceNodeItem.getIp(),
-                                        instanceNodeItem.getPort());
+                                String instanceNodeName = String.format("%s:%d", instanceNodeItem.getIp(), instanceNodeItem.getPort());
                                 instanceNodeNames.add(instanceNodeName);
                                 if (StringUtils.compare(instanceNode, instanceNodeName) == 0) {
                                     hasReqInstanceNode = true;
@@ -225,8 +219,7 @@ public class HealthCheckController extends BaseController {
                                     node.setServerName(serverName);
                                     node.setIp(selectedInstanceNode.getIp());
                                     node.setPort(selectedInstanceNode.getPort());
-                                    node.setQueryWithTimestampParamName(
-                                            selectedInstanceNodeGroup.getMsConf().getQueryWithTimestampParamName());
+                                    node.setQueryWithTimestampParamName(selectedInstanceNodeGroup.getMsConf().getQueryWithTimestampParamName());
                                     node.setContextPath(selectedInstanceNodeGroup.getMsConf().getContextPath());
                                     node.setHeader(selectedInstanceNodeGroup.getMsConf().getHeader());
                                     loggersJsonContent = new SpringBootActuatorClient().getLoggers(node);
@@ -240,8 +233,7 @@ public class HealthCheckController extends BaseController {
                             val instanceNodesIterator = selectedInstanceNodeGroup.getNodes().iterator();
                             while (instanceNodesIterator.hasNext()) {
                                 val instanceNodeItem = instanceNodesIterator.next();
-                                String instanceNodeName = String.format("%s:%d", instanceNodeItem.getIp(),
-                                        instanceNodeItem.getPort());
+                                String instanceNodeName = String.format("%s:%d", instanceNodeItem.getIp(), instanceNodeItem.getPort());
                                 instanceNodeNames.add(instanceNodeName);
                             }
                         }
@@ -274,8 +266,7 @@ public class HealthCheckController extends BaseController {
 
     @ResponseBody
     @PostMapping("/healthcheck/modifyLoggerLevel")
-    public SimpleRes modifyLoggerLevel(String serverName, String groupName, String ip, int port, String loggerName,
-            String configuredLevel) {
+    public SimpleRes modifyLoggerLevel(String serverName, String groupName, String ip, int port, String loggerName, String configuredLevel) {
         val response = new SimpleRes();
 
         ArrayList<ServerNode> serverNodes = null;
@@ -337,8 +328,7 @@ public class HealthCheckController extends BaseController {
             val needRefreshServerNodes = new ArrayList<ServerNode>(serverNameArray.length);
             for (String serverName : serverNameArray) {
                 try {
-                    val serverNode = serverNodes.stream().filter(q -> serverName.equals(q.getServerName())).findFirst()
-                            .get();
+                    val serverNode = serverNodes.stream().filter(q -> serverName.equals(q.getServerName())).findFirst().get();
                     needRefreshServerNodes.add(serverNode);
                 } catch (NullPointerException e) {
 

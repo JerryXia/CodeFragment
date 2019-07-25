@@ -41,7 +41,7 @@ public class CheckTask implements Runnable {
     private boolean working = true;
     private boolean active;
 
-    public CheckTask(final ServerCheckManager manager, String groupName, final CheckingInstanceNode chkInstanceNode) {
+    public CheckTask(final ServerCheckManager manager, final String groupName, final CheckingInstanceNode chkInstanceNode) {
         this.checkingManager = manager;
         this.groupName = groupName;
         this.checkingInstanceNode = chkInstanceNode;
@@ -53,7 +53,8 @@ public class CheckTask implements Runnable {
         if (nowIsActive == this.active) {
             // ignore
         } else {
-            doubleInfo(String.format("last active status: %s, now: %s", this.active, nowIsActive));
+            doubleInfo(String.format("%s %s %s:%d last active status: %s, now: %s", this.checkingInstanceNode.getServerName(), this.groupName, this.checkingInstanceNode.getIp(),
+                    this.checkingInstanceNode.getPort(), this.active, nowIsActive));
             this.active = nowIsActive;
             this.checkingInstanceNode.setActived(nowIsActive);
             this.checkingManager.receiveUpdateReport(this.groupName, this.checkingInstanceNode);
@@ -65,8 +66,7 @@ public class CheckTask implements Runnable {
         CloseableHttpClient httpclient = HttpClients.createMinimal();
         CloseableHttpResponse httpResponse = null;
         try {
-            String uri = String.format("http://%s:%d%s?%s=%d", node.getIp(), node.getPort(), node.getPath(),
-                    node.getQueryWithTimestampParamName(), SystemClock.now());
+            String uri = String.format("http://%s:%d%s?%s=%d", node.getIp(), node.getPort(), node.getPath(), node.getQueryWithTimestampParamName(), SystemClock.now());
             HttpGet httpget = new HttpGet(uri);
             httpget.setHeader(HttpHeaders.HOST, node.getServerName());
             httpget.setHeader(HttpHeaders.USER_AGENT, Const.DEFAULT_USER_AGENT);

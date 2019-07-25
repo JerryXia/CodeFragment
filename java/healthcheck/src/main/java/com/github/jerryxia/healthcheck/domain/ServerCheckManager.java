@@ -38,20 +38,24 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class ServerCheckManager {
-    private final ServerNode         serverNode;
+    private ServerNode               serverNode;
     private ServerCheckManagerStatus status;
     private ArrayList<Thread>        serverCheckWorkers;
     private String                   lastStatusHash;
 
     public ServerCheckManager(ServerNode node) throws IOException {
-        Assert.notNull(node, "serverNode can not be null");
-        Assert.notNull(node.getGroups(), "groups can not be null");
-
-        if (StringUtils.isBlank(node.getVhostConfTplFilePath())) {
-            node.setVhostConfTplFilePath(node.getServerName() + ".conf.ftl");
-        }
-        this.serverNode = node;
+        this.setServerNode(node);
         this.status = ServerCheckManagerStatus.STOPPED;
+    }
+
+    public void setServerNode(ServerNode serverNode) {
+        Assert.notNull(serverNode, "serverNode can not be null");
+        Assert.notNull(serverNode.getGroups(), "groups can not be null");
+
+        if (StringUtils.isBlank(serverNode.getVhostConfTplFilePath())) {
+            serverNode.setVhostConfTplFilePath(serverNode.getServerName() + ".conf.ftl");
+        }
+        this.serverNode = serverNode;
     }
 
     public ServerNode getServerNode() {
@@ -192,7 +196,7 @@ public class ServerCheckManager {
             val entry = entrySetIterator.next();
             String groupName = entry.getKey();
             InstanceNodeGroup instanceNodeGroup = entry.getValue();
-            if(instanceNodeGroup.isAutoHealthCheckMode()) {
+            if (instanceNodeGroup.isAutoHealthCheckMode()) {
                 for (int j = 0; j < instanceNodeGroup.getNodes().size(); j++) {
                     InstanceNode instanceNode = instanceNodeGroup.getNodes().get(j);
                     // 生成每个working的检查任务
