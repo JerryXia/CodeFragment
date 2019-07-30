@@ -24,5 +24,6 @@ public class Const {
     public static final JavaType                          ARRAYLIST_SERVERNODE_TYPE = JsonMapper.INSTANCE.buildCollectionType(ArrayList.class, ServerNode.class);
 
     public static String CONF_DIR;
+    public static File   CONF_DIR_FILE;
     public static File   CONF_SERVER_NODES_FILE;
 }
