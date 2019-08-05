@@ -22,6 +22,12 @@ public class RecordLogViewStatusMessagesServlet extends ch.qos.logback.access.Vi
 
     private static StatusManager CURRENT_STATUS_MANAGER;
 
+    private static void makeSureStatusManagerIsNotNull() {
+        if (CURRENT_STATUS_MANAGER == null) {
+            CURRENT_STATUS_MANAGER = new BasicStatusManager();
+        }
+    }
+
     @Override
     protected StatusManager getStatusManager(HttpServletRequest req, HttpServletResponse resp) {
         resp.setCharacterEncoding("UTF-8");
@@ -29,9 +35,7 @@ public class RecordLogViewStatusMessagesServlet extends ch.qos.logback.access.Vi
         ServletContext sc = getServletContext();
         Object statusManagerObj = sc.getAttribute(AccessConstants.LOGBACK_STATUS_MANAGER_KEY);
         if (statusManagerObj == null) {
-            if (CURRENT_STATUS_MANAGER == null) {
-                CURRENT_STATUS_MANAGER = new BasicStatusManager();
-            }
+            makeSureStatusManagerIsNotNull();
             sc.setAttribute(AccessConstants.LOGBACK_STATUS_MANAGER_KEY, CURRENT_STATUS_MANAGER);
         } else {
             if (CURRENT_STATUS_MANAGER == null) {
@@ -47,16 +51,12 @@ public class RecordLogViewStatusMessagesServlet extends ch.qos.logback.access.Vi
     }
 
     public static void info(String msg, Object origin) {
-        if (CURRENT_STATUS_MANAGER == null) {
-            CURRENT_STATUS_MANAGER = new BasicStatusManager();
-        }
+        makeSureStatusManagerIsNotNull();
         CURRENT_STATUS_MANAGER.add(new InfoStatus(msg, origin));
     }
 
     public static void error(String msg, Object origin) {
-        if (CURRENT_STATUS_MANAGER == null) {
-            CURRENT_STATUS_MANAGER = new BasicStatusManager();
-        }
+        makeSureStatusManagerIsNotNull();
         CURRENT_STATUS_MANAGER.add(new ErrorStatus(msg, origin));
     }
 }

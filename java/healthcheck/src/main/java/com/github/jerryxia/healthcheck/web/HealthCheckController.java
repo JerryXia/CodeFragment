@@ -6,6 +6,8 @@ package com.github.jerryxia.healthcheck.web;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springside.modules.utils.collection.CollectionUtil;
 import org.springside.modules.utils.io.FilePathUtil;
+import org.springside.modules.utils.io.FileTreeWalker;
 import org.springside.modules.utils.io.FileUtil;
 import org.springside.modules.utils.mapper.JsonMapper;
 
@@ -42,13 +45,12 @@ public class HealthCheckController extends BaseController {
     @Autowired
     private Environment env;
 
-    private static String CONF_DIR;
-
     @PostConstruct
     public void init() throws IOException {
-        CONF_DIR = env.getProperty("app.conf.dir");
-        Const.FTL_Configuration.setDirectoryForTemplateLoading(new File(CONF_DIR));
-        Const.CONF_SERVER_NODES_FILE = new File(FilePathUtil.contact(CONF_DIR, "serverNodes.json"));
+        Const.CONF_DIR = env.getProperty("app.conf.dir");
+        Const.CONF_DIR_FILE = new File(Const.CONF_DIR);
+        Const.FTL_Configuration.setDirectoryForTemplateLoading(Const.CONF_DIR_FILE);
+        Const.CONF_SERVER_NODES_FILE = new File(FilePathUtil.contact(Const.CONF_DIR, "serverNodes.json"));
         initFileIfNotExists(Const.CONF_SERVER_NODES_FILE, "[]");
     }
 
@@ -109,9 +111,52 @@ public class HealthCheckController extends BaseController {
         return response;
     }
 
+    @GetMapping("/healthcheck/appNginxConfTpls")
+    public ModelAndView appNginxConfTplsPage(@RequestParam(name = "f", defaultValue = "") String filePath) {
+        ModelAndView mv = new ModelAndView("healthcheck/appNginxConfTpls");
+
+        List<File> confTplFiles = FileTreeWalker.listFileWithExtension(Const.CONF_DIR_FILE, "ftl");
+        if(StringUtils.isBlank(filePath)) {
+            List<String> allConfFiles = confTplFiles.stream().map(q -> q.getAbsolutePath()).collect(Collectors.toList());
+            mv.addObject("allConfFiles", allConfFiles);
+        } else {
+            File queryFile = null;
+            try {
+                queryFile = confTplFiles.stream().filter(q -> StringUtils.compare(filePath, q.getAbsolutePath()) == 0).findFirst().get();
+            } catch(NullPointerException e) {
+                log.error(filePath, e);
+            }
+            String queryFileContent = StringUtils.EMPTY;
+            if(queryFile != null) {
+                try {
+                    queryFileContent = FileUtil.toString(queryFile);
+                } catch (IOException e) {
+                    
+                }
+            }
+            mv.addObject("filePath", filePath);
+            mv.addObject("queryFileContent", queryFileContent);
+        }
+
+        mv.addObject("menuKey", 2);
+        tkd(mv, "Nginx配置模板清单", null, null);
+        return mv;
+    }
+    @ResponseBody
+    @PostMapping("/healthcheck/appNginxConfTplSave")
+    public SimpleRes appNginxConfTplSave(String filePath, String content) {
+        val response = new SimpleRes();
+
+        try {
+            FileUtil.write(content, new File(filePath));
+        } catch (IOException e) {
+            response.failWithMsg("保存失败");
+        }
+        return response;
+    }
+
     @GetMapping("/healthcheck/serverHealthCheckConfig")
-    public ModelAndView serverHealthCheckConfig(@RequestParam(name = "s", defaultValue = "") String serverName,
-            @RequestParam(name = "g", defaultValue = "") String groupName) {
+    public ModelAndView serverHealthCheckConfig(@RequestParam(name = "s", defaultValue = "") String serverName, @RequestParam(name = "g", defaultValue = "") String groupName) {
         ModelAndView mv = new ModelAndView("healthcheck/serverHealthCheckConfig");
 
         ArrayList<ServerNode> serverNodes = null;
@@ -148,16 +193,14 @@ public class HealthCheckController extends BaseController {
         }
         mv.addObject("serverNodes", serverNodes);
 
-        mv.addObject("menuKey", 2);
+        mv.addObject("menuKey", 3);
         tkd(mv, "应用设置", null, null);
         return mv;
     }
 
     @GetMapping("/healthcheck/springbootActuatorLogSetting")
-    public ModelAndView springbootActuatorLogSetting(@RequestParam(name = "s", defaultValue = "") String serverName,
-            @RequestParam(name = "g", defaultValue = "") String groupName,
-            @RequestParam(name = "n", defaultValue = "") String instanceNode,
-            @RequestParam(name = "sln", defaultValue = "") String searchedloggerName) {
+    public ModelAndView springbootActuatorLogSetting(@RequestParam(name = "s", defaultValue = "") String serverName, @RequestParam(name = "g", defaultValue = "") String groupName,
+            @RequestParam(name = "n", defaultValue = "") String instanceNode, @RequestParam(name = "sln", defaultValue = "") String searchedloggerName) {
         ModelAndView mv = new ModelAndView("healthcheck/springbootActuatorLogSetting");
 
         ArrayList<ServerNode> serverNodes = null;
@@ -210,8 +253,7 @@ public class HealthCheckController extends BaseController {
                             val instanceNodesIterator = selectedInstanceNodeGroup.getNodes().iterator();
                             while (instanceNodesIterator.hasNext()) {
                                 val instanceNodeItem = instanceNodesIterator.next();
-                                String instanceNodeName = String.format("%s:%d", instanceNodeItem.getIp(),
-                                        instanceNodeItem.getPort());
+                                String instanceNodeName = String.format("%s:%d", instanceNodeItem.getIp(), instanceNodeItem.getPort());
                                 instanceNodeNames.add(instanceNodeName);
                                 if (StringUtils.compare(instanceNode, instanceNodeName) == 0) {
                                     hasReqInstanceNode = true;
@@ -225,8 +267,7 @@ public class HealthCheckController extends BaseController {
                                     node.setServerName(serverName);
                                     node.setIp(selectedInstanceNode.getIp());
                                     node.setPort(selectedInstanceNode.getPort());
-                                    node.setQueryWithTimestampParamName(
-                                            selectedInstanceNodeGroup.getMsConf().getQueryWithTimestampParamName());
+                                    node.setQueryWithTimestampParamName(selectedInstanceNodeGroup.getMsConf().getQueryWithTimestampParamName());
                                     node.setContextPath(selectedInstanceNodeGroup.getMsConf().getContextPath());
                                     node.setHeader(selectedInstanceNodeGroup.getMsConf().getHeader());
                                     loggersJsonContent = new SpringBootActuatorClient().getLoggers(node);
@@ -240,8 +281,7 @@ public class HealthCheckController extends BaseController {
                             val instanceNodesIterator = selectedInstanceNodeGroup.getNodes().iterator();
                             while (instanceNodesIterator.hasNext()) {
                                 val instanceNodeItem = instanceNodesIterator.next();
-                                String instanceNodeName = String.format("%s:%d", instanceNodeItem.getIp(),
-                                        instanceNodeItem.getPort());
+                                String instanceNodeName = String.format("%s:%d", instanceNodeItem.getIp(), instanceNodeItem.getPort());
                                 instanceNodeNames.add(instanceNodeName);
                             }
                         }
@@ -267,15 +307,14 @@ public class HealthCheckController extends BaseController {
         mv.addObject("sln", searchedloggerName);
         mv.addObject("loggersJsonContent", loggersJsonContent);
 
-        mv.addObject("menuKey", 3);
+        mv.addObject("menuKey", 4);
         tkd(mv, "SpringBoot-Actuator-Log设置", null, null);
         return mv;
     }
 
     @ResponseBody
     @PostMapping("/healthcheck/modifyLoggerLevel")
-    public SimpleRes modifyLoggerLevel(String serverName, String groupName, String ip, int port, String loggerName,
-            String configuredLevel) {
+    public SimpleRes modifyLoggerLevel(String serverName, String groupName, String ip, int port, String loggerName, String configuredLevel) {
         val response = new SimpleRes();
 
         ArrayList<ServerNode> serverNodes = null;
@@ -337,8 +376,7 @@ public class HealthCheckController extends BaseController {
             val needRefreshServerNodes = new ArrayList<ServerNode>(serverNameArray.length);
             for (String serverName : serverNameArray) {
                 try {
-                    val serverNode = serverNodes.stream().filter(q -> serverName.equals(q.getServerName())).findFirst()
-                            .get();
+                    val serverNode = serverNodes.stream().filter(q -> serverName.equals(q.getServerName())).findFirst().get();
                     needRefreshServerNodes.add(serverNode);
                 } catch (NullPointerException e) {
 

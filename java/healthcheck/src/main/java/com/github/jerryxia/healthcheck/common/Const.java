@@ -20,10 +20,10 @@ public class Const {
     public static final String   DEFAULT_USER_AGENT = "HealthChecker";
     public static final Splitter COLON_SPLITTER     = Splitter.on(':');
 
-    public static final freemarker.template.Configuration FTL_Configuration         = new freemarker.template.Configuration(
-            freemarker.template.Configuration.VERSION_2_3_28);
-    public static final JavaType                          ARRAYLIST_SERVERNODE_TYPE = JsonMapper.INSTANCE
-            .buildCollectionType(ArrayList.class, ServerNode.class);
+    public static final freemarker.template.Configuration FTL_Configuration         = new freemarker.template.Configuration(freemarker.template.Configuration.VERSION_2_3_28);
+    public static final JavaType                          ARRAYLIST_SERVERNODE_TYPE = JsonMapper.INSTANCE.buildCollectionType(ArrayList.class, ServerNode.class);
 
-    public static File CONF_SERVER_NODES_FILE;
+    public static String CONF_DIR;
+    public static File   CONF_DIR_FILE;
+    public static File   CONF_SERVER_NODES_FILE;
 }
