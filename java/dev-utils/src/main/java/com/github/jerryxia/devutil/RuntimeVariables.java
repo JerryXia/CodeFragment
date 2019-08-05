@@ -13,7 +13,7 @@ import java.util.Properties;
 public final class RuntimeVariables {
     public static final ClassLoader CLASS_LOADER = RuntimeVariables.class.getClassLoader();
 
-    /** lib的相关状态信息 **/
+    /** lib version **/
     public static String VERSION = null;
 
     static {

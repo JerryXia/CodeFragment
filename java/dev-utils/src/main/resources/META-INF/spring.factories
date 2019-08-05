@@ -1,0 +1,6 @@
+# Application Listeners
+org.springframework.context.ApplicationListener=\
+org.springframework.boot.system.ApplicationPidFileWriter,\
+org.springframework.boot.system.EmbeddedServerPortFileWriter,\
+com.github.jerryxia.devutil.springblock.context.ApplicationReadyListener,\
+com.github.jerryxia.devutil.springblock.context.ApplicationContextClosedListener

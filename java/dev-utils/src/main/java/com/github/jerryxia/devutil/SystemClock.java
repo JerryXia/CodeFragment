@@ -9,7 +9,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 代替系统的时钟
+ * It is an alternative to the system clock
  * 
  * @author guqk
  *

@@ -25,7 +25,7 @@ public class HttpHelperTest {
 
     @Test
     public void simpleGettNull_is_ok() {
-        String url = "http://gqkzwy.gicp.net/";
+        String url = "https://manytools.org/http-html-text/http-request-headers/";
         String responseStr = null;
         try {
             responseStr = HttpHelper.simpleGet(url, null);
@@ -37,14 +37,14 @@ public class HttpHelperTest {
 
     @Test
     public void simpleFormPostNull_is_ok() {
-        String url = "http://gqkzwy.gicp.net/";
+        String url = "https://manytools.org/http-html-text/http-request-headers/";
         String responseStr = HttpHelper.simpleFormPost(url, null);
         Assert.assertTrue(responseStr.contains("Content-Type:application/x-www-form-urlencoded;"));
     }
 
     @Test
     public void simpleFormPostEmpty_is_ok() {
-        String url = "http://gqkzwy.gicp.net/";
+        String url = "https://manytools.org/http-html-text/http-request-headers/";
         HashMap<String, String> map = new HashMap<String, String>();
         String responseStr = HttpHelper.simpleFormPost(url, map);
         Assert.assertTrue(responseStr.contains("Content-Type:application/x-www-form-urlencoded;"));
@@ -52,7 +52,7 @@ public class HttpHelperTest {
 
     @Test
     public void simpleFormPost_is_ok() {
-        String url = "http://gqkzwy.gicp.net/";
+        String url = "https://manytools.org/http-html-text/http-request-headers/";
         HashMap<String, String> map = new HashMap<String, String>();
         map.put("a", "a111111");
         String responseStr = HttpHelper.simpleFormPost(url, map);
@@ -61,7 +61,7 @@ public class HttpHelperTest {
 
     @Test
     public void simpleJsonPost_is_ok() {
-        String url = "http://gqkzwy.gicp.net/";
+        String url = "https://manytools.org/http-html-text/http-request-headers/";
         String jsonStr = "{\"a\": 1}";
         String responseStr = HttpHelper.simpleJsonPost(url, jsonStr);
         Assert.assertTrue(responseStr.contains("Content-Type:application/json;"));

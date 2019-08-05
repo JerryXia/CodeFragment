@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.jerryxia</groupId>
   <artifactId>dev-utils</artifactId>
-  <version>0.0.11</version>
+  <version>0.0.12</version>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -12,7 +12,9 @@
     <maven.compiler.source>1.7</maven.compiler.source>
     <junit.version>4.12</junit.version>
     <slf4j.version>1.7.25</slf4j.version>
-    <springframework.security.version>4.2.3.RELEASE</springframework.security.version>
+    <spring-boot.version>1.5.12.RELEASE</spring-boot.version>
+    <spring-framework.version>4.3.16.RELEASE</spring-framework.version>
+    <spring-framework.security.version>4.2.3.RELEASE</spring-framework.security.version>
   </properties>
 
   <dependencies>
@@ -43,7 +45,7 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>${springframework.security.version}</version>
+      <version>${spring-framework.security.version}</version>
       <scope>provided</scope>
       <optional>true</optional>
       <exclusions>
@@ -52,6 +54,13 @@
           <artifactId>aopalliance</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-autoconfigure</artifactId>
+      <version>${spring-boot.version}</version>
+      <scope>provided</scope>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.mybatis.generator</groupId>
