@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.jerryxia</groupId>
   <artifactId>dev-utils</artifactId>
-  <version>0.0.12</version>
+  <version>0.0.13</version>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -139,7 +139,7 @@
     </profile>
   </profiles>
 
-  <url>https://github.com/JerryXia/CodeFragment</url>
+  <url>https://github.com/JerryXia/CodeFragment/tree/master/java/dev-utils</url>
   <description>develop utils</description>
   <licenses>
     <license>

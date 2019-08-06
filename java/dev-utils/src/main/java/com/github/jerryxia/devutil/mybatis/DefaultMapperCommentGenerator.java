@@ -16,23 +16,22 @@ import org.mybatis.generator.config.MergeConstants;
 import org.mybatis.generator.internal.util.StringUtility;
 
 /**
- * 
  * @author Administrator
  *
  */
-public class MapperCommentGenerator implements CommentGenerator {
+public class DefaultMapperCommentGenerator implements CommentGenerator {
 
     /**
-     * 开始的分隔符，例如mysql为`，sqlserver为[
+     ** 开始的分隔符，例如mysql为`，sqlserver为[
      */
     private String beginningDelimiter = "";
 
     /**
-     * 结束的分隔符，例如mysql为`，sqlserver为]
+     ** 结束的分隔符，例如mysql为`，sqlserver为]
      */
     private String endingDelimiter = "";
 
-    public MapperCommentGenerator() {
+    public DefaultMapperCommentGenerator() {
         super();
     }
 
@@ -82,7 +81,7 @@ public class MapperCommentGenerator implements CommentGenerator {
     }
 
     /**
-     * 删除标记
+     ** 删除标记
      *
      * @param javaElement
      * @param markAsDoNotDelete
@@ -125,7 +124,7 @@ public class MapperCommentGenerator implements CommentGenerator {
     }
 
     /**
-     * 给字段添加数据库备注
+     ** 给字段添加数据库备注
      *
      * @param field
      * @param introspectedTable
@@ -199,6 +198,24 @@ public class MapperCommentGenerator implements CommentGenerator {
      */
     @Override
     public void addGeneralMethodComment(Method method, IntrospectedTable introspectedTable) {
+        //super.addGeneralMethodComment(method, introspectedTable);
+        String insteadMethodName = null;
+        switch(method.getName()) {
+        case "insert":
+            insteadMethodName = "insertSelective";
+            break;
+        case "updateByPrimaryKey":
+            insteadMethodName = "updateByPrimaryKeySelective";
+            break;
+        default:
+            break;
+        }
+        if(insteadMethodName != null) {
+            method.addJavaDocLine("/**");
+            method.addJavaDocLine(String.format(" * use {@link %s} instead.", insteadMethodName));
+            method.addJavaDocLine(" */");
+            method.addJavaDocLine("@Deprecated");
+        }
     }
 
     /**
@@ -288,5 +305,4 @@ public class MapperCommentGenerator implements CommentGenerator {
             Set<FullyQualifiedJavaType> imports) {
 
     }
-
 }
