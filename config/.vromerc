@@ -14,7 +14,7 @@ map esc <C-Esc>
 unmap <C-d>
 
 set defaultsearch=google
-set disablesites=theoldreader.com, docs.google.com/spreadsheet, github.com
+set disablesites=theoldreader.com, docs.google.com/spreadsheet, github.com, www.guqiankun.com
 set searchengines={"google":"https://www.google.com/search?q={{keyword}}","baidu":"http://www.baidu.com/s?wd={{keyword}}","wikipedia":"http://en.wikipedia.org/wiki/{{keyword}}"}
 set showstatus=0
 
