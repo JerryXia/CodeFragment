@@ -12,7 +12,6 @@ import org.apache.http.client.utils.HttpClientUtils;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.util.EntityUtils;
 
-import com.github.jerryxia.devutil.SystemClock;
 import com.github.jerryxia.devutil.http.CopiedByteHttpResponse;
 
 /**
@@ -20,24 +19,14 @@ import com.github.jerryxia.devutil.http.CopiedByteHttpResponse;
  *
  */
 public class ExpectedBytesResponseCallback implements FutureCallback<HttpResponse> {
-    protected final long             start;
-    private long                     completedDuration;
+    private boolean                  end;
     protected CopiedByteHttpResponse copiedHttpResponse;
 
     public ExpectedBytesResponseCallback() {
-        this.start = SystemClock.now();
-    }
 
-    public long getCompletedDuration() {
-        return completedDuration;
-    }
-
-    public CopiedByteHttpResponse getCopiedHttpResponse() {
-        return copiedHttpResponse;
     }
 
     public void completed(HttpResponse httpResponse) {
-        completedDuration = SystemClock.now() - this.start;
         try {
             // class org.apache.http.message.BasicHttpResponse
             StatusLine statusLine = httpResponse.getStatusLine();
@@ -47,15 +36,30 @@ public class ExpectedBytesResponseCallback implements FutureCallback<HttpRespons
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
+            // EntityUtils.consume(entity.getEntity());
             HttpClientUtils.closeQuietly(httpResponse);
         }
+        switchToEnd();
     }
 
     public void failed(Exception e) {
+        switchToEnd();
         e.printStackTrace();
     }
 
     public void cancelled() {
+        switchToEnd();
+    }
 
+    public boolean isEnd() {
+        return end;
+    }
+
+    public CopiedByteHttpResponse getCopiedHttpResponse() {
+        return copiedHttpResponse;
+    }
+
+    private void switchToEnd() {
+        this.end = true;
     }
 }
