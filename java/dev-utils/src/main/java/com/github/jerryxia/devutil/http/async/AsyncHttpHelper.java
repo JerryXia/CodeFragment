@@ -40,6 +40,7 @@ import org.apache.http.impl.nio.conn.PoolingNHttpClientConnectionManager;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.nio.client.util.HttpAsyncClientUtils;
 import org.apache.http.nio.conn.NHttpClientConnectionManager;
 import org.apache.http.nio.conn.NoopIOSessionStrategy;
 import org.apache.http.nio.conn.SchemeIOSessionStrategy;
@@ -61,47 +62,48 @@ import com.github.jerryxia.devutil.http.AllTrustStrategy;
  */
 public final class AsyncHttpHelper {
     private static final String      DEFAULT_THREAD_FACTORY_POOL_NAME_PREFIX = "AsyncHttpHelper";
-    private static final ContentType APPLICATION_FORM_URLENCODED_UTF_8       = ContentType
-            .create(URLEncodedUtils.CONTENT_TYPE, Consts.UTF_8);
+    private static final ContentType APPLICATION_FORM_URLENCODED_UTF_8       = ContentType.create(URLEncodedUtils.CONTENT_TYPE, Consts.UTF_8);
 
     public static final int              DEFAULT_CONN_MAXPERROUTE = 128;
     public static final int              DEFAULT_CONN_MAXTOTAL    = 1024;
     public static final ConnectionConfig DEFAULT_CONN_CONFIG      = defaultConnectionConfigBuilder().build();
     public static final int              DEFAULT_TIMEOUT          = 2 * 1000;
     public static final RequestConfig    DEFAULT_REQUEST_CONFIG   = defaultRequestConfigBuilder().build();
-    public static final String           DEFAULT_USERAGENT        = "AsyncHttpHelper-" + RuntimeVariables.VERSION;
+    public static final String           DEFAULT_USERAGENT        = "AsyncHttpHelper-" + RuntimeVariables.LIB_VERSION;
 
-    private static final Registry<SchemeIOSessionStrategy>  DEFAULT_IOSESSION_FACTORY_REGISTRY = createIOSessionFactoryRegistry();
-    public static final DefaultConnectingIOReactor          DEFAULT_IOREACTOR                  = createIOReactor(
-            IOReactorConfig.DEFAULT, DEFAULT_THREAD_FACTORY_POOL_NAME_PREFIX);
-    public static final PoolingNHttpClientConnectionManager DEFAULT_CONN_MANAGER               = createNHttpClientConnectionManager(
-            DEFAULT_IOREACTOR, DEFAULT_IOSESSION_FACTORY_REGISTRY, DEFAULT_CONN_CONFIG, DEFAULT_CONN_MAXPERROUTE,
-            DEFAULT_CONN_MAXTOTAL);
-    public static final CloseableHttpAsyncClient            DEFAULT_HTTPASYNCCLIENT            = createHttpAsyncClient(
-            DEFAULT_CONN_MANAGER, DEFAULT_THREAD_FACTORY_POOL_NAME_PREFIX, DEFAULT_USERAGENT);
+    public static final Registry<SchemeIOSessionStrategy>   DEFAULT_IOSESSION_FACTORY_REGISTRY = createIOSessionFactoryRegistry();
+    public static final DefaultConnectingIOReactor          DEFAULT_IOREACTOR                  = createIOReactor(IOReactorConfig.DEFAULT, DEFAULT_THREAD_FACTORY_POOL_NAME_PREFIX);
+    public static final PoolingNHttpClientConnectionManager DEFAULT_CONN_MANAGER               = createNHttpClientConnectionManager(DEFAULT_IOREACTOR,
+            DEFAULT_IOSESSION_FACTORY_REGISTRY, DEFAULT_CONN_CONFIG, DEFAULT_CONN_MAXPERROUTE, DEFAULT_CONN_MAXTOTAL);
+    public static final CloseableHttpAsyncClient            DEFAULT_HTTPASYNCCLIENT            = createHttpAsyncClient(DEFAULT_CONN_MANAGER,
+            DEFAULT_THREAD_FACTORY_POOL_NAME_PREFIX, DEFAULT_USERAGENT);
 
     static {
         DEFAULT_HTTPASYNCCLIENT.start();
-        // org.apache.http.nio.client.util.HttpAsyncClientUtils.closeQuietly(DEFAULT_HTTPASYNCCLIENT);
+    }
+
+    public static void close() {
+        close(DEFAULT_HTTPASYNCCLIENT);
+    }
+
+    public static void close(final CloseableHttpAsyncClient httpAsyncClient) {
         // org.apache.http.impl.nio.client.MinimalHttpAsyncClient().close();
+        HttpAsyncClientUtils.closeQuietly(DEFAULT_HTTPASYNCCLIENT);
         // connectionManager.closeExpiredConnections();
         // connectionManager.closeIdleConnections(idletime, tunit);
     }
 
-    public static Future<HttpResponse> simpleGet(final URI uri, final Map<String, String> params,
-            final FutureCallback<HttpResponse> callback) throws URISyntaxException {
+    public static Future<HttpResponse> simpleGet(final URI uri, final Map<String, String> params, final FutureCallback<HttpResponse> callback) throws URISyntaxException {
         HttpGet httpGet = createSimpleGet(uri, params, DEFAULT_REQUEST_CONFIG);
         return DEFAULT_HTTPASYNCCLIENT.execute(httpGet, HttpClientContext.create(), callback);
     }
 
-    public static Future<HttpResponse> simpleFormPost(final URI uri, Map<String, String> params,
-            final FutureCallback<HttpResponse> callback) throws URISyntaxException {
+    public static Future<HttpResponse> simpleFormPost(final URI uri, Map<String, String> params, final FutureCallback<HttpResponse> callback) throws URISyntaxException {
         HttpPost httpPost = createSimpleFormPost(uri, params, DEFAULT_REQUEST_CONFIG);
         return DEFAULT_HTTPASYNCCLIENT.execute(httpPost, HttpClientContext.create(), callback);
     }
 
-    public static HttpGet createSimpleGet(final URI uri, final Map<String, String> params,
-            final RequestConfig reqConfig) throws URISyntaxException {
+    public static HttpGet createSimpleGet(final URI uri, final Map<String, String> params, final RequestConfig reqConfig) throws URISyntaxException {
         URIBuilder uriBuilder = new URIBuilder(uri);
         if (params != null) {
             // uriBuilder.setParameters(basicNameValuePairs);
@@ -120,8 +122,7 @@ public final class AsyncHttpHelper {
         return httpGet;
     }
 
-    public static HttpPost createSimpleFormPost(final URI uri, final Map<String, String> params,
-            final RequestConfig reqConfig) {
+    public static HttpPost createSimpleFormPost(final URI uri, final Map<String, String> params, final RequestConfig reqConfig) {
         ArrayList<BasicNameValuePair> basicNameValuePairs = new ArrayList<BasicNameValuePair>();
         if (params != null) {
             Iterator<Map.Entry<String, String>> entryIterator = params.entrySet().iterator();
@@ -166,8 +167,7 @@ public final class AsyncHttpHelper {
      * @param reqConfig
      * @return
      */
-    public static HttpPost createHttpPost(final URI uri, final HttpEntity nonBlockingEntity,
-            final RequestConfig reqConfig) {
+    public static HttpPost createHttpPost(final URI uri, final HttpEntity nonBlockingEntity, final RequestConfig reqConfig) {
         final HttpPost httpPost = new HttpPost(uri);
         httpPost.setProtocolVersion(HttpVersion.HTTP_1_1);
         // org.apache.http.nio.pool.AbstractNIOConnPool line:445
@@ -180,31 +180,25 @@ public final class AsyncHttpHelper {
         return httpPost;
     }
 
-    public static CloseableHttpAsyncClient createHttpAsyncClient(NHttpClientConnectionManager connManager,
-            String threadFactoryPoolNamePrefix, String userAgent) {
+    public static CloseableHttpAsyncClient createHttpAsyncClient(NHttpClientConnectionManager connManager, String threadFactoryPoolNamePrefix, String userAgent) {
         CustomNameThreadFactory threadFactory = new CustomNameThreadFactory(threadFactoryPoolNamePrefix, "reactor");
-        CloseableHttpAsyncClient httpclient = CustomHttpAsyncClients.createMinimal(connManager, threadFactory,
-                userAgent);
+        CloseableHttpAsyncClient httpclient = CustomHttpAsyncClients.createClientNegotiationMinimal(connManager, threadFactory, userAgent);
         return httpclient;
     }
 
-    public static PoolingNHttpClientConnectionManager createNHttpClientConnectionManager(ConnectingIOReactor ioreactor,
-            Registry<SchemeIOSessionStrategy> iosessionFactoryRegistry, ConnectionConfig connConfig,
-            int defaultMaxPerRoute, int maxTotal) {
-        PoolingNHttpClientConnectionManager connectionManager = new PoolingNHttpClientConnectionManager(ioreactor,
-                iosessionFactoryRegistry);
+    public static PoolingNHttpClientConnectionManager createNHttpClientConnectionManager(ConnectingIOReactor ioreactor, Registry<SchemeIOSessionStrategy> iosessionFactoryRegistry,
+            ConnectionConfig connConfig, int defaultMaxPerRoute, int maxTotal) {
+        PoolingNHttpClientConnectionManager connectionManager = new PoolingNHttpClientConnectionManager(ioreactor, iosessionFactoryRegistry);
         connectionManager.setDefaultConnectionConfig(connConfig);
         connectionManager.setDefaultMaxPerRoute(defaultMaxPerRoute);
         connectionManager.setMaxTotal(maxTotal);
         return connectionManager;
     }
 
-    public static DefaultConnectingIOReactor createIOReactor(IOReactorConfig config,
-            String threadFactoryPoolNamePrefix) {
+    public static DefaultConnectingIOReactor createIOReactor(IOReactorConfig config, String threadFactoryPoolNamePrefix) {
         // org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor line:228
         // IOReactorConfig ioReactorconfig = IOReactorConfig.custom().build();
-        CustomNameThreadFactory threadFactory = new CustomNameThreadFactory(threadFactoryPoolNamePrefix,
-                "I/O Dispatcher");
+        CustomNameThreadFactory threadFactory = new CustomNameThreadFactory(threadFactoryPoolNamePrefix, "I/O Dispatcher");
         DefaultConnectingIOReactor ioreactor = null;
         try {
             ioreactor = new DefaultConnectingIOReactor(config, threadFactory);
@@ -227,18 +221,15 @@ public final class AsyncHttpHelper {
         }
         SSLIOSessionStrategy ioSessionStrategy = new SSLIOSessionStrategy(sslContext, NoopHostnameVerifier.INSTANCE);
         RegistryBuilder<SchemeIOSessionStrategy> registryBuilder = RegistryBuilder.create();
-        Registry<SchemeIOSessionStrategy> iosessionFactoryRegistry = registryBuilder
-                .register("http", NoopIOSessionStrategy.INSTANCE).register("https", ioSessionStrategy).build();
+        Registry<SchemeIOSessionStrategy> iosessionFactoryRegistry = registryBuilder.register("http", NoopIOSessionStrategy.INSTANCE).register("https", ioSessionStrategy).build();
         return iosessionFactoryRegistry;
     }
 
     public static org.apache.http.config.ConnectionConfig.Builder defaultConnectionConfigBuilder() {
-        return ConnectionConfig.custom().setMalformedInputAction(CodingErrorAction.IGNORE)
-                .setUnmappableInputAction(CodingErrorAction.IGNORE).setCharset(Consts.UTF_8);
+        return ConnectionConfig.custom().setMalformedInputAction(CodingErrorAction.IGNORE).setUnmappableInputAction(CodingErrorAction.IGNORE).setCharset(Consts.UTF_8);
     }
 
     public static org.apache.http.client.config.RequestConfig.Builder defaultRequestConfigBuilder() {
-        return RequestConfig.custom().setConnectTimeout(DEFAULT_TIMEOUT).setConnectionRequestTimeout(DEFAULT_TIMEOUT)
-                .setSocketTimeout(DEFAULT_TIMEOUT);
+        return RequestConfig.custom().setConnectionRequestTimeout(DEFAULT_TIMEOUT).setConnectTimeout(DEFAULT_TIMEOUT).setSocketTimeout(DEFAULT_TIMEOUT);
     }
 }

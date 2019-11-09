@@ -11,17 +11,18 @@ import java.util.Properties;
  *
  */
 public final class RuntimeVariables {
-    public static final ClassLoader CLASS_LOADER = RuntimeVariables.class.getClassLoader();
-
-    /** lib version **/
-    public static String VERSION = null;
+    public static final ClassLoader CLASS_LOADER    = RuntimeVariables.class.getClassLoader();
+    public static final String      LIB_GROUP_ID    = "com.github.jerryxia";
+    public static final String      LIB_ARTIFACT_ID = "dev-utils";
+    public static String            LIB_VERSION     = null;
 
     static {
         Properties prop = new Properties();
         try {
-            prop.load(CLASS_LOADER.getResourceAsStream("META-INF/maven/com.github.jerryxia/dev-utils/pom.properties"));
+            String pom = String.format("META-INF/maven/%s/%s/pom.properties", LIB_GROUP_ID, LIB_ARTIFACT_ID);
+            prop.load(CLASS_LOADER.getResourceAsStream(pom));
             // load Property
-            RuntimeVariables.VERSION = prop.getProperty("version");
+            RuntimeVariables.LIB_VERSION = prop.getProperty("version");
         } catch (IOException e) {
             e.printStackTrace();
         }
