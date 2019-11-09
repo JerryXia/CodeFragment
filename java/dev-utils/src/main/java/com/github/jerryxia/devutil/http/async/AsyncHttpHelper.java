@@ -69,7 +69,7 @@ public final class AsyncHttpHelper {
     public static final ConnectionConfig DEFAULT_CONN_CONFIG      = defaultConnectionConfigBuilder().build();
     public static final int              DEFAULT_TIMEOUT          = 2 * 1000;
     public static final RequestConfig    DEFAULT_REQUEST_CONFIG   = defaultRequestConfigBuilder().build();
-    public static final String           DEFAULT_USERAGENT        = "AsyncHttpHelper-" + RuntimeVariables.VERSION;
+    public static final String           DEFAULT_USERAGENT        = "AsyncHttpHelper-" + RuntimeVariables.LIB_VERSION;
 
     private static final Registry<SchemeIOSessionStrategy>  DEFAULT_IOSESSION_FACTORY_REGISTRY = createIOSessionFactoryRegistry();
     public static final DefaultConnectingIOReactor          DEFAULT_IOREACTOR                  = createIOReactor(

@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 
+import com.github.jerryxia.devutil.RuntimeVariables;
+
 public class ApplicationReadyListener implements ApplicationListener<ApplicationReadyEvent> {
     private static final Logger log = LoggerFactory.getLogger(ApplicationReadyListener.class);
 
@@ -22,6 +24,6 @@ public class ApplicationReadyListener implements ApplicationListener<Application
      */
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
-        log.info("Application:{} Ready", event.getApplicationContext().getId());
+        log.info("{} find Application:'{}' is Ready", RuntimeVariables.LIB_ARTIFACT_ID, event.getApplicationContext().getId());
     }
 }
