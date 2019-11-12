@@ -22,7 +22,6 @@ import org.junit.Test;
  *
  */
 public class HttpHelperTest {
-
     @Test
     public void simpleGettNull_is_ok() {
         String url = "https://manytools.org/http-html-text/http-request-headers/";
@@ -37,36 +36,36 @@ public class HttpHelperTest {
 
     @Test
     public void simpleFormPostNull_is_ok() {
-        String url = "https://manytools.org/http-html-text/http-request-headers/";
+        String url = "https://www.cylog.org/headers/";
         String responseStr = HttpHelper.simpleFormPost(url, null);
-        Assert.assertTrue(responseStr.contains("Content-Type:application/x-www-form-urlencoded;"));
+        Assert.assertTrue(responseStr.contains("application/x-www-form-urlencoded;"));
     }
 
     @Test
     public void simpleFormPostEmpty_is_ok() {
-        String url = "https://manytools.org/http-html-text/http-request-headers/";
+        String url = "https://www.cylog.org/headers/";
         HashMap<String, String> map = new HashMap<String, String>();
         String responseStr = HttpHelper.simpleFormPost(url, map);
-        Assert.assertTrue(responseStr.contains("Content-Type:application/x-www-form-urlencoded;"));
+        Assert.assertTrue(responseStr.contains("application/x-www-form-urlencoded;"));
     }
 
     @Test
     public void simpleFormPost_is_ok() {
-        String url = "https://manytools.org/http-html-text/http-request-headers/";
+        String url = "https://www.cylog.org/headers/";
         HashMap<String, String> map = new HashMap<String, String>();
         map.put("a", "a111111");
         String responseStr = HttpHelper.simpleFormPost(url, map);
-        Assert.assertTrue(responseStr.contains("Content-Type:application/x-www-form-urlencoded;"));
+        Assert.assertTrue(responseStr.contains("application/x-www-form-urlencoded;"));
     }
 
     @Test
     public void simpleJsonPost_is_ok() {
-        String url = "https://manytools.org/http-html-text/http-request-headers/";
+        String url = "https://www.cylog.org/headers/";
         String jsonStr = "{\"a\": 1}";
         String responseStr = HttpHelper.simpleJsonPost(url, jsonStr);
-        Assert.assertTrue(responseStr.contains("Content-Type:application/json;"));
+        Assert.assertTrue(responseStr.contains("application/json;"));
     }
-    
+
     @Test
     public void test_formEncode_is_ok() {
         HashMap<String, String> params = new HashMap<String, String>();
@@ -90,9 +89,28 @@ public class HttpHelperTest {
         Assert.assertEquals("b=%E6%B5%8B%E8%AF%952a&a=%E6%B5%8B%E8%AF%95", utf8Result);
 
         UrlEncodedFormEntity entity = new UrlEncodedFormEntity(basicNameValuePairs, Consts.UTF_8);
-        
         System.out.println(entity.toString());
     }
     
-    
+    @Test
+    public void test_simpleGet_is_ok() throws URISyntaxException, InterruptedException {
+        for(int j = 0; j < 5; j++) {
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    for (int i = 0; i < 10240; i++) {
+                        String uri = String.format("https://www.baidu.com/?t=%d", i);
+                        HashMap<String, String> params = new HashMap<String, String>();
+                        try {
+                            HttpHelper.simpleGet(uri, params);
+                        } catch (URISyntaxException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            });
+            t.start();
+        }
+        Thread.sleep(60 * 1000);
+    }
 }

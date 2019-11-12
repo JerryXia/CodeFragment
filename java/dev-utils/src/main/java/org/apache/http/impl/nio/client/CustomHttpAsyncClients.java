@@ -9,7 +9,10 @@ import org.apache.http.impl.client.DefaultClientConnectionReuseStrategy;
 import org.apache.http.nio.conn.NHttpClientConnectionManager;
 import org.apache.http.util.Args;
 
+import com.github.jerryxia.devutil.http.NegativeConnectionKeepAliveStrategy;
+
 /**
+ * org.apache.http.impl.nio.client.HttpAsyncClients
  * org.apache.http.impl.nio.client.MinimalHttpAsyncClientBuilder
  * 
  * @author guqk
@@ -23,6 +26,7 @@ public final class CustomHttpAsyncClients {
                 .setConnectionManager(connManager)
                 .setConnectionManagerShared(false)
                 .setThreadFactory(threadFactory)
+                .setKeepAliveStrategy(NegativeConnectionKeepAliveStrategy.INSTANCE)
                 .setUserAgent(userAgent)
                 .disableCookieManagement()
                 .build();
@@ -36,6 +40,7 @@ public final class CustomHttpAsyncClients {
                 .setConnectionManagerShared(false)
                 .setThreadFactory(threadFactory)
                 .setConnectionReuseStrategy(DefaultClientConnectionReuseStrategy.INSTANCE)
+                .setKeepAliveStrategy(NegativeConnectionKeepAliveStrategy.INSTANCE)
                 .setUserAgent(userAgent)
                 .disableCookieManagement()
                 .build();

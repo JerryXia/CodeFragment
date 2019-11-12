@@ -61,19 +61,21 @@ import com.github.jerryxia.devutil.http.AllTrustStrategy;
  *
  */
 public final class AsyncHttpHelper {
-    private static final String      DEFAULT_THREAD_FACTORY_POOL_NAME_PREFIX = "AsyncHttpHelper";
-    private static final ContentType APPLICATION_FORM_URLENCODED_UTF_8       = ContentType.create(URLEncodedUtils.CONTENT_TYPE, Consts.UTF_8);
+    private static final String DEFAULT_NAME                            = "AsyncHttpHelper";
+    private static final String DEFAULT_THREAD_FACTORY_POOL_NAME_PREFIX = DEFAULT_NAME;
 
-    public static final int              DEFAULT_CONN_MAXPERROUTE = 128;
-    public static final int              DEFAULT_CONN_MAXTOTAL    = 1024;
-    public static final ConnectionConfig DEFAULT_CONN_CONFIG      = defaultConnectionConfigBuilder().build();
-    public static final int              DEFAULT_TIMEOUT          = 2 * 1000;
-    public static final RequestConfig    DEFAULT_REQUEST_CONFIG   = defaultRequestConfigBuilder().build();
-    public static final String           DEFAULT_USERAGENT        = "AsyncHttpHelper-" + RuntimeVariables.LIB_VERSION;
+    public static final int              DEFAULT_CONN_MAXPERROUTE          = 128;
+    public static final int              DEFAULT_CONN_MAXTOTAL             = 1024;
+    public static final ConnectionConfig DEFAULT_CONN_CONFIG               = defaultConnectionConfigBuilder().build();
+    public static final int              DEFAULT_TIMEOUT_MILLISECONDS      = 2 * 1000;
+    public static final RequestConfig    DEFAULT_REQUEST_CONFIG            = defaultRequestConfigBuilder().build();
+    public static final String           DEFAULT_USERAGENT                 = String.format("%s:%s/%s-%s", RuntimeVariables.LIB_GROUP_ID, RuntimeVariables.LIB_ARTIFACT_ID,
+            DEFAULT_NAME, RuntimeVariables.LIB_VERSION);
+    public static final ContentType      APPLICATION_FORM_URLENCODED_UTF_8 = ContentType.create(URLEncodedUtils.CONTENT_TYPE, Consts.UTF_8);
 
     public static final Registry<SchemeIOSessionStrategy>   DEFAULT_IOSESSION_FACTORY_REGISTRY = createIOSessionFactoryRegistry();
     public static final DefaultConnectingIOReactor          DEFAULT_IOREACTOR                  = createIOReactor(IOReactorConfig.DEFAULT, DEFAULT_THREAD_FACTORY_POOL_NAME_PREFIX);
-    public static final PoolingNHttpClientConnectionManager DEFAULT_CONN_MANAGER               = createNHttpClientConnectionManager(DEFAULT_IOREACTOR,
+    public static final PoolingNHttpClientConnectionManager DEFAULT_CONN_MANAGER               = createDefaultNHttpClientConnectionManager(DEFAULT_IOREACTOR,
             DEFAULT_IOSESSION_FACTORY_REGISTRY, DEFAULT_CONN_CONFIG, DEFAULT_CONN_MAXPERROUTE, DEFAULT_CONN_MAXTOTAL);
     public static final CloseableHttpAsyncClient            DEFAULT_HTTPASYNCCLIENT            = createHttpAsyncClient(DEFAULT_CONN_MANAGER,
             DEFAULT_THREAD_FACTORY_POOL_NAME_PREFIX, DEFAULT_USERAGENT);
@@ -88,7 +90,7 @@ public final class AsyncHttpHelper {
 
     public static void close(final CloseableHttpAsyncClient httpAsyncClient) {
         // org.apache.http.impl.nio.client.MinimalHttpAsyncClient().close();
-        HttpAsyncClientUtils.closeQuietly(DEFAULT_HTTPASYNCCLIENT);
+        HttpAsyncClientUtils.closeQuietly(httpAsyncClient);
         // connectionManager.closeExpiredConnections();
         // connectionManager.closeIdleConnections(idletime, tunit);
     }
@@ -186,8 +188,8 @@ public final class AsyncHttpHelper {
         return httpclient;
     }
 
-    public static PoolingNHttpClientConnectionManager createNHttpClientConnectionManager(ConnectingIOReactor ioreactor, Registry<SchemeIOSessionStrategy> iosessionFactoryRegistry,
-            ConnectionConfig connConfig, int defaultMaxPerRoute, int maxTotal) {
+    public static PoolingNHttpClientConnectionManager createDefaultNHttpClientConnectionManager(ConnectingIOReactor ioreactor,
+            Registry<SchemeIOSessionStrategy> iosessionFactoryRegistry, ConnectionConfig connConfig, int defaultMaxPerRoute, int maxTotal) {
         PoolingNHttpClientConnectionManager connectionManager = new PoolingNHttpClientConnectionManager(ioreactor, iosessionFactoryRegistry);
         connectionManager.setDefaultConnectionConfig(connConfig);
         connectionManager.setDefaultMaxPerRoute(defaultMaxPerRoute);
@@ -230,6 +232,7 @@ public final class AsyncHttpHelper {
     }
 
     public static org.apache.http.client.config.RequestConfig.Builder defaultRequestConfigBuilder() {
-        return RequestConfig.custom().setConnectionRequestTimeout(DEFAULT_TIMEOUT).setConnectTimeout(DEFAULT_TIMEOUT).setSocketTimeout(DEFAULT_TIMEOUT);
+        return RequestConfig.custom().setConnectionRequestTimeout(DEFAULT_TIMEOUT_MILLISECONDS).setConnectTimeout(DEFAULT_TIMEOUT_MILLISECONDS)
+                .setSocketTimeout(DEFAULT_TIMEOUT_MILLISECONDS);
     }
 }
