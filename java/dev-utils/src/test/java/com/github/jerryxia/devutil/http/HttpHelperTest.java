@@ -24,7 +24,7 @@ import org.junit.Test;
 public class HttpHelperTest {
     @Test
     public void simpleGettNull_is_ok() {
-        String url = "https://manytools.org/http-html-text/http-request-headers/";
+        String url = "https://www.cylog.org/headers/";
         String responseStr = null;
         try {
             responseStr = HttpHelper.simpleGet(url, null);

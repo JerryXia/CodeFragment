@@ -26,7 +26,7 @@ public class AsyncHttpHelperTest {
 
     @Test
     public void test_simpleGetWithCookie_is_ok() throws URISyntaxException, InterruptedException {
-        String uri = "https://manytools.org/http-html-text/http-request-headers/";
+        String uri = "https://www.cylog.org/headers/";
         HashMap<String, String> params = new HashMap<String, String>();
         ExpectedTextResponseCallback callback = new ExpectedTextResponseCallback();
         HttpGet httpGet = AsyncHttpHelper.createSimpleGet(URI.create(uri), params, AsyncHttpHelper.DEFAULT_REQUEST_CONFIG);
@@ -38,13 +38,13 @@ public class AsyncHttpHelperTest {
         Assert.assertNotNull(callback.getCopiedHttpResponse());
         Assert.assertTrue(callback.getCopiedHttpResponse().getStatusLine().getStatusCode() == 200);
         System.out.println(callback.getCopiedHttpResponse().getBody());
-        Assert.assertTrue(callback.getCopiedHttpResponse().getBody().indexOf("AsyncHttpHelper-0.0.14") > -1);
+        Assert.assertTrue(callback.getCopiedHttpResponse().getBody().indexOf(AsyncHttpHelper.DEFAULT_USERAGENT) > -1);
         Assert.assertTrue(callback.getCopiedHttpResponse().getBody().indexOf("a=123; b=456") > -1);
     }
 
     @Test
     public void test_simpleGet_is_ok() throws URISyntaxException, InterruptedException {
-        for (int i = 0; i < 1024; i++) {
+        for (int i = 0; i < 2; i++) {
             URI uri = URI.create(String.format("https://www.baidu.com/?t=%d", i));
             HashMap<String, String> params = new HashMap<String, String>();
             ExpectedTextResponseCallback callback = new ExpectedTextResponseCallback();

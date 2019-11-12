@@ -3,7 +3,6 @@
  */
 package com.github.jerryxia.devutil;
 
-import java.io.IOException;
 import java.util.Properties;
 
 /**
@@ -23,8 +22,9 @@ public final class RuntimeVariables {
             prop.load(CLASS_LOADER.getResourceAsStream(pom));
             // load Property
             RuntimeVariables.LIB_VERSION = prop.getProperty("version");
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
+            RuntimeVariables.LIB_VERSION = "";
         }
     }
 }
