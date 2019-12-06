@@ -7,6 +7,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -68,7 +69,7 @@ public class HttpHelperTest {
 
     @Test
     public void test_formEncode_is_ok() {
-        HashMap<String, String> params = new HashMap<String, String>();
+        Map<String, String> params = new LinkedHashMap<String, String>();
         params.put("b", "测试2a");
         params.put("a", "测试");
         ArrayList<BasicNameValuePair> basicNameValuePairs = new ArrayList<BasicNameValuePair>();
@@ -98,7 +99,7 @@ public class HttpHelperTest {
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    for (int i = 0; i < 10240; i++) {
+                    for (int i = 0; i < 1024; i++) {
                         String uri = String.format("https://www.baidu.com/?t=%d", i);
                         HashMap<String, String> params = new HashMap<String, String>();
                         try {
@@ -111,6 +112,6 @@ public class HttpHelperTest {
             });
             t.start();
         }
-        Thread.sleep(60 * 1000);
+        Thread.sleep(40 * 1000);
     }
 }
