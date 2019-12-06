@@ -231,7 +231,9 @@ public final class HttpHelper {
             String responseString = EntityUtils.toString(entity, Consts.UTF_8);
             copiedHttpResponse = new CopiedTextHttpResponse(statusLine, httpResponse.getAllHeaders(), responseString);
         } catch (IOException e) {
-            log.error("HttpHelper.expectedTextExecuteRequest() io error", e);
+            if(log.isErrorEnabled()) {
+                log.error("HttpHelper.expectedTextExecuteRequest() io error", e);
+            }
         } finally {
             HttpClientUtils.closeQuietly(httpResponse);
         }
@@ -248,7 +250,9 @@ public final class HttpHelper {
             byte[] responseBytes = EntityUtils.toByteArray(entity);
             copiedHttpResponse = new CopiedByteHttpResponse(statusLine, httpResponse.getAllHeaders(), responseBytes);
         } catch (IOException e) {
-            log.error("HttpHelper.expectedBytesExecuteRequest() io error", e);
+            if(log.isErrorEnabled()) {
+                log.error("HttpHelper.expectedBytesExecuteRequest() io error", e);
+            }
         } finally {
             HttpClientUtils.closeQuietly(httpResponse);
         }
