@@ -6,13 +6,14 @@ package com.github.jerryxia.spafilehttpserver.handler;
 import javax.activation.MimetypesFileTypeMap;
 
 import com.vip.vjtools.vjkit.io.FilePathUtil;
-import com.vip.vjtools.vjkit.io.FileUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -41,6 +42,7 @@ import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedFile;
 import io.netty.util.CharsetUtil;
@@ -79,7 +81,9 @@ public class SpaFileHttpRequestHandler extends SimpleChannelInboundHandler<FullH
         }
 
         final boolean keepAlive = HttpUtil.isKeepAlive(request);
-        final String uri = request.uri();
+        QueryStringDecoder queryStringDecoder = new QueryStringDecoder(request.uri());
+        final String uri = queryStringDecoder.path();
+
         String path = sanitizeUri(uri);
         if (path == null) {
             this.sendError(ctx, FORBIDDEN);
@@ -91,22 +95,16 @@ public class SpaFileHttpRequestHandler extends SimpleChannelInboundHandler<FullH
 //            this.sendError(ctx, NOT_FOUND);
 //            return;
 //        }
-        while(!file.exists()) {
-            path = FilePathUtil.getParentPath(path);
-            file = new File(path);
-        }
-
-//        if (file.isDirectory()) {
-//            if (uri.endsWith("/")) {
-//                this.sendListing(ctx, file, uri);
-//            } else {
-//                this.sendRedirect(ctx, uri + '/');
-//            }
-//            return;
-//        }
-        if (file.isDirectory()) {
-            file = new File(FilePathUtil.concat(path, "index.html"));
-        }
+        Path userDir = Paths.get(SystemPropertyUtil.get("user.dir"));
+        do {
+            if (file.isDirectory()) {
+                file = new File(FilePathUtil.concat(path, "index.html"));
+            }
+            if(!file.exists()) {
+                path = FilePathUtil.getParentPath(path);
+                file = new File(path);
+            }
+        } while(file.isDirectory() && userDir.compareTo(Paths.get(path)) != 0);
 
         if (!file.isFile()) {
             sendError(ctx, FORBIDDEN);
@@ -220,7 +218,7 @@ public class SpaFileHttpRequestHandler extends SimpleChannelInboundHandler<FullH
         }
 
         // Convert to absolute path.
-        return SystemPropertyUtil.get("user.dir") + File.separator + uri;
+        return FilePathUtil.concat(SystemPropertyUtil.get("user.dir"), uri);
     }
 
     private static final Pattern ALLOWED_FILE_NAME = Pattern.compile("[^-\\._]?[^<>&\\\"]*");
