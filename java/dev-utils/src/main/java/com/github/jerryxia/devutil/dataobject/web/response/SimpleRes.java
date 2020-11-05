@@ -14,6 +14,7 @@ public class SimpleRes {
     private int                 code;
     private String              msg;
     private Map<String, Object> data;
+    private Exception           exception;
 
     public SimpleRes() {
         this.code = SimpleResCode.Ok.getValue();
@@ -64,4 +65,13 @@ public class SimpleRes {
     public void setData(Map<String, Object> data) {
         this.data = data;
     }
+
+    public Exception getException() {
+        return exception;
+    }
+
+    public void setException(Exception exception) {
+        this.exception = exception;
+    }
+
 }
