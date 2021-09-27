@@ -212,7 +212,7 @@ public class DefaultMapperCommentGenerator implements CommentGenerator {
         }
         if(insteadMethodName != null) {
             method.addJavaDocLine("/**");
-            method.addJavaDocLine(String.format(" * use {@link %s} instead.", insteadMethodName));
+            method.addJavaDocLine(String.format(" * use {@link #%s} instead.", insteadMethodName));
             method.addJavaDocLine(" */");
             method.addJavaDocLine("@Deprecated");
         }
