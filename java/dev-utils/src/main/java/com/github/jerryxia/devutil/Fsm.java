@@ -22,6 +22,15 @@ public class Fsm<T> {
     }
 
     public Fsm configure(Enum<?> sourceState, Enum<?> triggerEvent, Enum<?> destinationState, Consumer<T> action) {
+        if (sourceState == null) {
+            throw new IllegalArgumentException("sourceState can't be null.");
+        }
+        if (triggerEvent == null) {
+            throw new IllegalArgumentException("triggerEvent can't be null.");
+        }
+        if (destinationState == null) {
+            throw new IllegalArgumentException("destinationState can't be null.");
+        }
         regTable.put(sourceState.name() + "," + triggerEvent.name(),
                 new TransitionTable<T>(sourceState, triggerEvent, destinationState, action));
         return this;
@@ -33,7 +42,8 @@ public class Fsm<T> {
         if (action == null) {
             action = NoOPAction.INSTANCE;
         }
-        action.andThen(t -> this.state = transitionTable.getDestinationState());
+        action.accept(eventValue);
+        this.state = transitionTable.getDestinationState();
     }
 
     public <E extends Enum<E>> E getState() {
@@ -67,15 +77,6 @@ public class Fsm<T> {
 
         public Consumer<T> getAction() {
             return action;
-        }
-    }
-
-    static class NoOPAction<T> implements Consumer<T> {
-        public static final NoOPAction INSTANCE = new NoOPAction();
-
-        @Override
-        public void accept(T t) {
-            // ignore
         }
     }
 }
