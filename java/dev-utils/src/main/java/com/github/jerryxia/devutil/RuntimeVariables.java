@@ -23,7 +23,7 @@ public final class RuntimeVariables {
             // load Property
             RuntimeVariables.LIB_VERSION = prop.getProperty("version");
         } catch (Exception e) {
-            e.printStackTrace();
+            // e.printStackTrace();
             RuntimeVariables.LIB_VERSION = "";
         }
     }
