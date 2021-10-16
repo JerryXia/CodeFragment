@@ -21,7 +21,7 @@ public class Fsm<T> {
         this.state = state;
     }
 
-    public Fsm configure(Enum<?> sourceState, Enum<?> triggerEvent, Enum<?> destinationState, Consumer<T> action) {
+    public Fsm<T> configure(Enum<?> sourceState, Enum<?> triggerEvent, Enum<?> destinationState, Consumer<T> action) {
         if (sourceState == null) {
             throw new IllegalArgumentException("sourceState can't be null.");
         }
@@ -45,7 +45,7 @@ public class Fsm<T> {
         action.accept(eventValue);
         this.state = transitionTable.getDestinationState();
     }
-
+    @SuppressWarnings("unchecked")
     public <E extends Enum<E>> E getState() {
         return (E) this.state;
     }
