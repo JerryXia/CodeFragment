@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.github.jerryxia.devutil.http;
 
@@ -47,6 +47,7 @@ import org.apache.http.impl.client.DefaultClientConnectionReuseStrategy;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
@@ -71,7 +72,7 @@ public final class HttpHelper {
             DEFAULT_NAME, RuntimeVariables.LIB_VERSION);
     public static final ContentType      APPLICATION_FORM_URLENCODED_UTF_8 = ContentType.create(URLEncodedUtils.CONTENT_TYPE, Consts.UTF_8);
 
-    public static final Registry<ConnectionSocketFactory>  DEFAULT_SOCKET_FACTORY_REGISTRY = createSocketFactoryRegistry();
+    public static final Registry<ConnectionSocketFactory>  DEFAULT_SOCKET_FACTORY_REGISTRY = defaultSocketFactoryRegistryBuilder().build();
     public static final PoolingHttpClientConnectionManager DEFAULT_CONN_MANAGER            = createDefaultHttpClientConnectionManager(DEFAULT_SOCKET_FACTORY_REGISTRY,
             DEFAULT_CONN_CONFIG, DEFAULT_CONN_MAXPERROUTE, DEFAULT_CONN_MAXTOTAL);
     public static final CloseableHttpClient                DEFAULT_HTTPCLIENT              = createDefaultHttpClient(DEFAULT_CONN_MANAGER,
@@ -95,7 +96,7 @@ public final class HttpHelper {
      * <p>
      * return simpleExecuteRequest(httpPost);
      * </p>
-     * 
+     *
      * @param uri
      *            指定的Uri
      * @param params
@@ -119,7 +120,7 @@ public final class HttpHelper {
      * <p>
      * return simpleExecuteRequest(httpPost);
      * </p>
-     * 
+     *
      * @param uri
      *            指定的Uri
      * @param params
@@ -142,7 +143,7 @@ public final class HttpHelper {
      * <p>
      * return simpleExecuteRequest(httpPost);
      * </p>
-     * 
+     *
      * @param uri
      *            指定的Uri
      * @param jsonStr
@@ -222,16 +223,20 @@ public final class HttpHelper {
     }
 
     public static CopiedTextHttpResponse expectedTextExecuteRequest(CloseableHttpClient httpclient, HttpUriRequest request) {
+        return expectedTextExecuteRequest(httpclient, request);
+    }
+
+    public static CopiedTextHttpResponse expectedTextExecuteRequest(CloseableHttpClient httpclient, HttpUriRequest request, HttpContext context) {
         CopiedTextHttpResponse copiedHttpResponse = null;
         CloseableHttpResponse httpResponse = null;
         try {
-            httpResponse = httpclient.execute(request);
+            httpResponse = httpclient.execute(request, context);
             StatusLine statusLine = httpResponse.getStatusLine();
             HttpEntity entity = httpResponse.getEntity();
             String responseString = EntityUtils.toString(entity, Consts.UTF_8);
             copiedHttpResponse = new CopiedTextHttpResponse(statusLine, httpResponse.getAllHeaders(), responseString);
         } catch (IOException e) {
-            if(log.isErrorEnabled()) {
+            if (log.isErrorEnabled()) {
                 log.error("HttpHelper.expectedTextExecuteRequest() io error", e);
             }
         } finally {
@@ -241,16 +246,20 @@ public final class HttpHelper {
     }
 
     public static CopiedByteHttpResponse expectedBytesExecuteRequest(CloseableHttpClient httpclient, HttpUriRequest request) {
+        return expectedBytesExecuteRequest(httpclient, request, null);
+    }
+
+    public static CopiedByteHttpResponse expectedBytesExecuteRequest(CloseableHttpClient httpclient, HttpUriRequest request, HttpContext context) {
         CopiedByteHttpResponse copiedHttpResponse = null;
         CloseableHttpResponse httpResponse = null;
         try {
-            httpResponse = httpclient.execute(request);
+            httpResponse = httpclient.execute(request, context);
             StatusLine statusLine = httpResponse.getStatusLine();
             HttpEntity entity = httpResponse.getEntity();
             byte[] responseBytes = EntityUtils.toByteArray(entity);
             copiedHttpResponse = new CopiedByteHttpResponse(statusLine, httpResponse.getAllHeaders(), responseBytes);
         } catch (IOException e) {
-            if(log.isErrorEnabled()) {
+            if (log.isErrorEnabled()) {
                 log.error("HttpHelper.expectedBytesExecuteRequest() io error", e);
             }
         } finally {
@@ -260,7 +269,7 @@ public final class HttpHelper {
     }
 
     public static CloseableHttpClient createDefaultHttpClient(HttpClientConnectionManager connManager, ConnectionReuseStrategy reuseStrategy,
-            ConnectionKeepAliveStrategy keepAliveStrategy, long maxIdleTimeSeconds, String userAgent) {
+                                                              ConnectionKeepAliveStrategy keepAliveStrategy, long maxIdleTimeSeconds, String userAgent) {
         CloseableHttpClient httpclient = HttpClients.custom().setConnectionManager(connManager).setConnectionManagerShared(false).setConnectionReuseStrategy(reuseStrategy)
                 .setKeepAliveStrategy(keepAliveStrategy).evictExpiredConnections().evictIdleConnections(maxIdleTimeSeconds, TimeUnit.SECONDS).setUserAgent(userAgent)
                 .disableCookieManagement().build();
@@ -268,7 +277,7 @@ public final class HttpHelper {
     }
 
     public static PoolingHttpClientConnectionManager createDefaultHttpClientConnectionManager(Registry<ConnectionSocketFactory> socketFactoryRegistry, ConnectionConfig connConfig,
-            int defaultMaxPerRoute, int maxTotal) {
+                                                                                              int defaultMaxPerRoute, int maxTotal) {
         PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
         connectionManager.setDefaultConnectionConfig(connConfig);
         connectionManager.setDefaultMaxPerRoute(defaultMaxPerRoute);
@@ -276,7 +285,16 @@ public final class HttpHelper {
         return connectionManager;
     }
 
-    private static Registry<ConnectionSocketFactory> createSocketFactoryRegistry() {
+    public static org.apache.http.config.ConnectionConfig.Builder defaultConnectionConfigBuilder() {
+        return ConnectionConfig.custom().setMalformedInputAction(CodingErrorAction.IGNORE).setUnmappableInputAction(CodingErrorAction.IGNORE).setCharset(Consts.UTF_8);
+    }
+
+    public static org.apache.http.client.config.RequestConfig.Builder defaultRequestConfigBuilder() {
+        return RequestConfig.custom().setConnectionRequestTimeout(DEFAULT_TIMEOUT_MILLISECONDS).setConnectTimeout(DEFAULT_TIMEOUT_MILLISECONDS)
+                .setSocketTimeout(DEFAULT_TIMEOUT_MILLISECONDS);
+    }
+
+    public static RegistryBuilder<ConnectionSocketFactory> defaultSocketFactoryRegistryBuilder() {
         SSLContext sslContext = null;
         try {
             sslContext = SSLContextBuilder.create().loadTrustMaterial(AllTrustStrategy.INSTANCE).build();
@@ -287,18 +305,10 @@ public final class HttpHelper {
         } catch (KeyManagementException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
-        SSLConnectionSocketFactory sslf = new SSLConnectionSocketFactory(sslContext, NoopHostnameVerifier.INSTANCE);
+        SSLConnectionSocketFactory sslCSF = new SSLConnectionSocketFactory(sslContext, NoopHostnameVerifier.INSTANCE);
         RegistryBuilder<ConnectionSocketFactory> registryBuilder = RegistryBuilder.create();
-        Registry<ConnectionSocketFactory> socketFactoryRegistry = registryBuilder.register("http", PlainConnectionSocketFactory.getSocketFactory()).register("https", sslf).build();
-        return socketFactoryRegistry;
-    }
-
-    public static org.apache.http.config.ConnectionConfig.Builder defaultConnectionConfigBuilder() {
-        return ConnectionConfig.custom().setMalformedInputAction(CodingErrorAction.IGNORE).setUnmappableInputAction(CodingErrorAction.IGNORE).setCharset(Consts.UTF_8);
-    }
-
-    public static org.apache.http.client.config.RequestConfig.Builder defaultRequestConfigBuilder() {
-        return RequestConfig.custom().setConnectionRequestTimeout(DEFAULT_TIMEOUT_MILLISECONDS).setConnectTimeout(DEFAULT_TIMEOUT_MILLISECONDS)
-                .setSocketTimeout(DEFAULT_TIMEOUT_MILLISECONDS);
+        registryBuilder.register("http", PlainConnectionSocketFactory.getSocketFactory())
+                .register("https", sslCSF);
+        return registryBuilder;
     }
 }
