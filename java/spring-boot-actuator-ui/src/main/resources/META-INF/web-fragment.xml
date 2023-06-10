@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- JSR 315: Java Servlet 3.0 Specification -->
+<web-fragment xmlns="http://java.sun.com/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-fragment_3_0.xsd"
+    version="3.0">
+    <name>spring-boot-actuator-ui</name>
+
+    <!-- Servlet -->
+    <servlet>
+        <servlet-name>actuatorUIWebServlet</servlet-name>
+        <servlet-class>com.github.jerryxia.actuator.ui.support.web.servlet.DispatchWebRequestServlet</servlet-class>
+        <init-param>  
+            <param-name>urlPrefix</param-name>
+            <param-value>/admin/management/actuator</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>actuatorUIWebServlet</servlet-name>
+        <url-pattern>/admin/management/actuator/*</url-pattern>
+    </servlet-mapping>
+
+    <!-- BootstrapperContextListener -->
+    <listener>
+        <listener-class>com.github.jerryxia.actuator.ui.support.web.listener.BootstrapperContextListener</listener-class>
+    </listener>
+</web-fragment>
